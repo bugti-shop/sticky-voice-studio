@@ -7,7 +7,7 @@ import { Sparkles, Flame, Clock, Calendar as CalendarIcon2 } from 'lucide-react'
 import { MoreVertical, Eye, EyeOff, Filter, Copy, MousePointer2, Settings, LayoutList, LayoutGrid, ListPlus, ArrowUpDown, Columns3, GitBranch, Flag, ChevronRight, Trash2, ListChecks, Crown } from 'lucide-react';
 import { Plus as PlusIcon, FolderIcon, ArrowDownAZ } from 'lucide-react';
 import { toast } from 'sonner';
-import { loadCustomSmartViews } from '@/utils/customSmartViews';
+import { loadCustomSmartViews, deleteCustomSmartView } from '@/utils/customSmartViews';
 
 interface TodoOptionsDropdownProps {
   dropdownView: string;
