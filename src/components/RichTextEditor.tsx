@@ -50,6 +50,12 @@ import {
 } from './richtext/richTextConstants';
 import { applySmartDetection, SmartDetectionSettings } from './richtext/richTextDetection';
 import { RICH_TEXT_EDITOR_STYLES } from './richtext/richTextStyles';
+import {
+  reattachTableListenersOnElement,
+  reattachImageListenersOnElement,
+  reattachAudioListenersOnElement,
+  reattachFileListenersOnElement,
+} from './richtext/richTextMediaHandlers';
 
 
 interface RichTextEditorProps {
