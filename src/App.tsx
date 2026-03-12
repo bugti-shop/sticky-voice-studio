@@ -313,7 +313,7 @@ const DeferredSyncHooks = lazy(() =>
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <LazyMotion features={domAnimation} strict>
+      <LazyMotion features={domAnimation}>
         <TooltipProvider>
           <GoogleAuthProvider>
             <NotesProvider>
