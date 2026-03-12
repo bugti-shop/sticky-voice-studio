@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { toast } from '@/hooks/use-toast';
 import { CertificateUnlockToast } from '@/components/CertificateUnlockToast';
 import { Shield, Star, Award, Crown, Gem } from 'lucide-react';
