@@ -293,12 +293,6 @@ const AppContent = () => {
       <SmartReviewPrompt />
       
       <ComboOverlay />
-      <WelcomeBackCelebration
-        isOpen={isReturning}
-        mood={mood}
-        daysAway={daysAway}
-        onDismiss={acknowledgeReturn}
-      />
       <DeferredSyncInit />
       <AppRoutes />
     </>
