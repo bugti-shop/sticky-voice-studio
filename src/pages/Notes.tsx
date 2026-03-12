@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { exportNoteToMarkdown } from '@/utils/markdownExport';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { useRetentionLogo } from '@/hooks/useRetentionLogo';
+import appLogo from '@/assets/app-logo.webp';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useTranslation } from 'react-i18next';
