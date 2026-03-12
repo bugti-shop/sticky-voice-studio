@@ -17,7 +17,7 @@ import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 import { lazyHtml2canvas } from '@/utils/lazyHtml2canvas';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { shareImageBlob } from '@/utils/shareImage';
-import html2canvas from 'html2canvas';
+import { playAchievementSound } from '@/utils/gamificationSounds';
 import { toast } from 'sonner';
 import { MedalBadge, MEDAL_COLORS, RarityIcon } from '@/components/MedalBadge';
 import { QRCodeSVG } from 'qrcode.react';
