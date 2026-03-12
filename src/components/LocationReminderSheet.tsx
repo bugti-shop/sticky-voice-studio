@@ -10,8 +10,7 @@ import { MapPin, Navigation, Search, X, Bell, ArrowRight, ArrowLeft } from 'luci
 import { cn } from '@/lib/utils';
 import { setSetting } from '@/utils/settingsStorage';
 import { LocationDisclosureDialog, hasAcceptedLocationDisclosure, setLocationDisclosureAccepted } from '@/components/LocationDisclosureDialog';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import type mapboxgl from 'mapbox-gl';
 
 export interface LocationReminder {
   enabled: boolean;

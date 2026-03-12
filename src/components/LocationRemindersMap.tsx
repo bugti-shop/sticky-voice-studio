@@ -7,8 +7,7 @@ import { MapPin, X, Navigation, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { setSetting } from '@/utils/settingsStorage';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import type mapboxgl from 'mapbox-gl';
 
 interface LocationRemindersMapProps {
   open: boolean;
