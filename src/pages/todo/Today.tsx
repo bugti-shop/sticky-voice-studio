@@ -285,14 +285,7 @@ const Today = () => {
                           duration={voiceDuration[item.id] || item.voiceRecording.duration}
                           isPlaying={playingVoiceId === item.id}
                           onSeek={(percent) => {
-                            if (flatAudioRef.current && playingVoiceId === item.id) {
-                              const duration = flatAudioRef.current.duration || voiceDuration[item.id] || item.voiceRecording!.duration;
-                              if (duration && !isNaN(duration)) {
-                                flatAudioRef.current.currentTime = (percent / 100) * duration;
-                                setVoiceProgress(percent);
-                                setVoiceCurrentTime((percent / 100) * duration);
-                              }
-                            }
+                            seekToPercent(percent, item);
                           }}
                           height={12}
                         />
