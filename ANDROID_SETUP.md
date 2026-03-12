@@ -64,7 +64,6 @@ package nota.npd.com;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.PluginHandle;
@@ -73,37 +72,25 @@ import ee.forgr.capacitor.social.login.GoogleProvider;
 import ee.forgr.capacitor.social.login.SocialLoginPlugin;
 import ee.forgr.capacitor.social.login.ModifiedMainActivityForSocialLoginPlugin;
 
- 
-
 /**
  * Main Activity for Npd App
- * 
- * Handles:
- * 1. Google Sign-In via Capgo Social Login plugin
- * 2. Dynamic launcher icon (retention feature)
+ * - Google Sign-In via Capgo Social Login
+ * - Dynamic launcher icon (retention feature)
  */
 public class MainActivity extends BridgeActivity implements ModifiedMainActivityForSocialLoginPlugin {
-    
-    private static final String TAG = "MainActivity";
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onActivityResult: requestCode=" + requestCode);
-        
-        if (requestCode >= GoogleProvider.REQUEST_AUTHORIZE_GOOGLE_MIN && 
+        if (requestCode >= GoogleProvider.REQUEST_AUTHORIZE_GOOGLE_MIN &&
             requestCode < GoogleProvider.REQUEST_AUTHORIZE_GOOGLE_MAX) {
-            PluginHandle pluginHandle = getBridge().getPlugin("SocialLogin");
-            if (pluginHandle != null) {
-                SocialLoginPlugin plugin = (SocialLoginPlugin) pluginHandle.getInstance();
-                if (plugin != null) {
-                    plugin.handleGoogleLoginIntent(requestCode, data);
-                }
+            PluginHandle handle = getBridge().getPlugin("SocialLogin");
+            if (handle != null) {
+                ((SocialLoginPlugin) handle.getInstance()).handleGoogleLoginIntent(requestCode, data);
             }
         }
-        
         super.onActivityResult(requestCode, resultCode, data);
     }
-    
+
     @Override
     public void IHaveModifiedTheMainActivityForTheUseWithSocialLoginPlugin() {}
 }
