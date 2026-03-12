@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m as motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, Calendar, Clock, ChevronRight, 
   Flag, AlertTriangle, Check, Hourglass, X

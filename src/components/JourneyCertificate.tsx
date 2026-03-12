@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m as motion, AnimatePresence } from 'framer-motion';
 import { X, Share2, Copy, Check } from 'lucide-react';
 import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 import { Journey, JourneyProgress } from '@/utils/virtualJourneyStorage';

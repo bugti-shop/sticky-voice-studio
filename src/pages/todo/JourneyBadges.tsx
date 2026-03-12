@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m as motion, AnimatePresence } from 'framer-motion';
 import { Award, Share2, Edit3, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TodoLayout } from './TodoLayout';

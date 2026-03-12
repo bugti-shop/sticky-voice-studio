@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import Cropper, { Area } from 'react-easy-crop';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m as motion, AnimatePresence } from 'framer-motion';
 import { X, Check, ZoomIn, ZoomOut, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';

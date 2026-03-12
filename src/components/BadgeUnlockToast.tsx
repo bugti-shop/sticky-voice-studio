@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { RARITY_CONFIG, BadgeRarity } from '@/utils/virtualJourneyStorage';
 import { RarityIcon, MEDAL_COLORS } from '@/components/MedalBadge';

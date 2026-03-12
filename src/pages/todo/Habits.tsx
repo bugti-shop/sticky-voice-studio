@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m as motion, AnimatePresence } from 'framer-motion';
 import { format, subDays } from 'date-fns';
 import { Plus, Flame, Trophy, Target, Trash2, BarChart3, Check, ChevronLeft, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
