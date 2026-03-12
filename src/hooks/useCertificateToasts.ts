@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { toast } from '@/hooks/use-toast';
 import { CertificateUnlockToast } from '@/components/CertificateUnlockToast';
 import { Shield, Star, Award, Crown, Gem } from 'lucide-react';
@@ -30,11 +31,10 @@ export const useCertificateToasts = () => {
       checking.current = true;
 
       try {
-        const [{ loadTodoItems }, { loadNotesFromDB }, { loadFolders }, { getSetting, setSetting }] = await Promise.all([
+        const [{ loadTodoItems }, { loadNotesFromDB }, { loadFolders }] = await Promise.all([
           import('@/utils/todoItemsStorage'),
           import('@/utils/noteStorage'),
           import('@/utils/folderStorage'),
-          import('@/utils/settingsStorage'),
         ]);
 
         const [tasks, notes, folders, seenCerts, streakRaw, adminBypass] = await Promise.all([

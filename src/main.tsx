@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
+import { migrateLocalStorageToIndexedDB, getSetting } from "./utils/settingsStorage";
 
 // No loading screen - render nothing during suspense for instant feel
 const EmptyFallback = () => null;
@@ -29,7 +30,6 @@ createRoot(document.getElementById("root")!).render(
 scheduleDeferred(async () => {
   try {
     const [
-      { migrateLocalStorageToIndexedDB, getSetting },
       { migrateNotesToIndexedDB },
       { initializeTaskOrder },
       { initializeProtectionSettings },
@@ -39,7 +39,6 @@ scheduleDeferred(async () => {
       { initializeSmartNotifications },
       { configureStatusBar },
     ] = await Promise.all([
-      import("./utils/settingsStorage"),
       import("./utils/noteStorage"),
       import("./utils/taskOrderStorage"),
       import("./utils/noteProtection"),

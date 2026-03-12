@@ -6,6 +6,7 @@ import { MapPin, X, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { setSetting } from '@/utils/settingsStorage';
 
 interface LocationMapPreviewProps {
   location: string;
@@ -114,7 +115,6 @@ export const LocationMapPreview = ({
 
   const handleSaveToken = async () => {
     if (mapboxToken.trim()) {
-      const { setSetting } = await import('@/utils/settingsStorage');
       await setSetting('mapbox_token', mapboxToken.trim());
       setShowTokenInput(false);
       setIsLoading(true);

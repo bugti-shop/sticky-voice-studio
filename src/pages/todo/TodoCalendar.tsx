@@ -5,6 +5,7 @@ import { NotesCalendarView } from '@/components/NotesCalendarView';
 import { CalendarSyncBadge } from '@/components/CalendarSyncBadge';
 import { Plus, ListTodo, CalendarDays, Clock, MapPin, Repeat, Trash2, Edit, MoreVertical, X, GripVertical, LayoutList, Columns3, GitBranch, Flag, ListChecks, ChevronRight, ChevronDown, TrendingUp, History, CheckCircle2, Circle, Loader2, Sun, AlertCircle, Crown } from 'lucide-react';
 import { useSubscription, FREE_LIMITS } from '@/contexts/SubscriptionContext';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { Button } from '@/components/ui/button';
 import { TaskInputSheet } from '@/components/TaskInputSheet';
 import { TodoItem, Folder, CalendarEvent, Priority, TaskSection, TaskStatus } from '@/types/note';
@@ -44,7 +45,7 @@ import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useTranslation } from 'react-i18next';
-import { getSetting } from '@/utils/settingsStorage';
+
 
 type ViewMode = 'flat' | 'kanban' | 'kanban-status' | 'timeline' | 'progress' | 'priority' | 'history';
 
@@ -168,7 +169,6 @@ const TodoCalendar = () => {
   // Save view mode when changed
   const handleViewModeChange = useCallback(async (mode: ViewMode) => {
     setViewMode(mode);
-    const { setSetting } = await import('@/utils/settingsStorage');
     await setSetting('calendarViewMode', mode);
   }, []);
 
@@ -314,7 +314,6 @@ const TodoCalendar = () => {
 
   const confirmDeleteEvent = async () => {
     if (eventToDelete) {
-      const { setSetting } = await import('@/utils/settingsStorage');
       const updatedEvents = events.filter(e => e.id !== eventToDelete.id);
       setEvents(updatedEvents);
       await setSetting('calendarEvents', updatedEvents);
@@ -325,7 +324,6 @@ const TodoCalendar = () => {
   };
 
   const handleSaveEvent = async (eventData: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const { setSetting } = await import('@/utils/settingsStorage');
     if (editingEvent) {
       const updatedEvent: CalendarEvent = { ...editingEvent, ...eventData, updatedAt: new Date() };
       const updatedEvents = events.map(e => e.id === editingEvent.id ? updatedEvent : e);
@@ -366,7 +364,6 @@ const TodoCalendar = () => {
       requireFeature('extra_folders');
       return;
     }
-    const { setSetting } = await import('@/utils/settingsStorage');
     const newFolder: Folder = { id: Date.now().toString(), name, color, isDefault: false, createdAt: new Date() };
     const updatedFolders = [...folders, newFolder];
     setFolders(updatedFolders);

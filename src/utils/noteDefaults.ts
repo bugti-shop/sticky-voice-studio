@@ -1,5 +1,5 @@
 import { Note, SyncStatus } from '@/types/note';
-import { getSetting } from '@/utils/settingsStorage';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 
 // Get or create device ID for this device
 let cachedDeviceId: string | null = null;
@@ -10,7 +10,6 @@ export const getDeviceId = async (): Promise<string> => {
   let deviceId = await getSetting<string>('device_id', '');
   if (!deviceId) {
     deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const { setSetting } = await import('@/utils/settingsStorage');
     await setSetting('device_id', deviceId);
   }
   cachedDeviceId = deviceId;

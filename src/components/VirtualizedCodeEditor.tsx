@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,20 +84,16 @@ export const VirtualizedCodeEditor = ({
 
   // Load font size from IndexedDB
   useEffect(() => {
-    import('@/utils/settingsStorage').then(({ getSetting }) => {
-      getSetting<number>('code-editor-font-size', DEFAULT_FONT_SIZE).then(size => {
-        setFontSize(size);
-        setIsLoaded(true);
-      });
+    getSetting<number>('code-editor-font-size', DEFAULT_FONT_SIZE).then(size => {
+      setFontSize(size);
+      setIsLoaded(true);
     });
   }, []);
 
   // Save font size to IndexedDB
   useEffect(() => {
     if (isLoaded) {
-      import('@/utils/settingsStorage').then(({ setSetting }) => {
-        setSetting('code-editor-font-size', fontSize);
-      });
+      setSetting('code-editor-font-size', fontSize);
     }
   }, [fontSize, isLoaded]);
 

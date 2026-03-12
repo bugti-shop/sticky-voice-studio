@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -147,11 +148,9 @@ export const TaskTemplateSheet = ({ isOpen, onClose, onSelectTemplate }: TaskTem
 
   // Load custom templates from IndexedDB
   useEffect(() => {
-    import('@/utils/settingsStorage').then(({ getSetting }) => {
-      getSetting<TaskTemplate[]>('customTaskTemplates', []).then(templates => {
-        setCustomTemplates(templates);
-        setIsLoaded(true);
-      });
+    getSetting<TaskTemplate[]>('customTaskTemplates', []).then(templates => {
+      setCustomTemplates(templates);
+      setIsLoaded(true);
     });
   }, []);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -238,18 +237,14 @@ export const TaskTemplateSheet = ({ isOpen, onClose, onSelectTemplate }: TaskTem
     }
 
     setCustomTemplates(updatedTemplates);
-    import('@/utils/settingsStorage').then(({ setSetting }) => {
-      setSetting('customTaskTemplates', updatedTemplates);
-    });
+    setSetting('customTaskTemplates', updatedTemplates);
     setShowCreateDialog(false);
   };
 
   const handleDeleteTemplate = (templateId: string) => {
     const updatedTemplates = customTemplates.filter(t => t.id !== templateId);
     setCustomTemplates(updatedTemplates);
-    import('@/utils/settingsStorage').then(({ setSetting }) => {
-      setSetting('customTaskTemplates', updatedTemplates);
-    });
+    setSetting('customTaskTemplates', updatedTemplates);
   };
 
   const getIcon = (iconName: string) => {

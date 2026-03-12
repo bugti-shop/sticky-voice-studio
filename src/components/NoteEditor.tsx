@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTranslation } from 'react-i18next';
@@ -261,7 +262,6 @@ export const NoteEditor = ({ note, isOpen, onClose, onSave, defaultType = 'regul
 
   useEffect(() => {
     const loadFolders = async () => {
-      const { getSetting } = await import('@/utils/settingsStorage');
       const savedFolders = await getSetting<Folder[] | null>('folders', null);
       if (savedFolders) {
         setFolders(savedFolders.map((f: Folder) => ({
@@ -346,8 +346,7 @@ export const NoteEditor = ({ note, isOpen, onClose, onSave, defaultType = 'regul
       // Load default font settings from notes settings
       const loadDefaultFontSettings = async () => {
         try {
-          const { getSetting } = await import('@/utils/settingsStorage');
-          const notesSettings = await getSetting<{ 
+          const notesSettings = await getSetting<{
             normalText?: { fontFamily?: string; fontSize?: string; fontColor?: string };
             headings?: { fontFamily?: string; fontSize?: string; fontColor?: string };
           } | null>('notesEditorSettings', null);
@@ -428,7 +427,6 @@ export const NoteEditor = ({ note, isOpen, onClose, onSave, defaultType = 'regul
     setFolders(updatedFolders);
     // Save folders to IndexedDB and dispatch event
     const foldersToSave = updatedFolders.filter(f => !f.isDefault);
-    const { setSetting } = await import('@/utils/settingsStorage');
     await setSetting('folders', foldersToSave);
     // Dispatch event so Index.tsx can pick up the new folder
     window.dispatchEvent(new Event('foldersUpdated'));

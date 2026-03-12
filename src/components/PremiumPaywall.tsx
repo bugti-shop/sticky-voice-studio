@@ -5,6 +5,7 @@ import { useSubscription, ProductType } from '@/contexts/SubscriptionContext';
 import { Capacitor } from '@capacitor/core';
 import { triggerHaptic } from '@/utils/haptics';
 import { useHardwareBackButton } from '@/hooks/useHardwareBackButton';
+import { setSetting } from '@/utils/settingsStorage';
 
 const PLANS = [
   { id: 'weekly' as ProductType, label: 'Weekly', price: '$1.99/wk', badge: null },
@@ -88,7 +89,6 @@ export const PremiumPaywall = () => {
   const handleAccessCode = async () => {
     const validCode = 'BUGTI';
     if (adminCode.trim().toUpperCase() === validCode) {
-      const { setSetting } = await import('@/utils/settingsStorage');
       await setSetting('npd_admin_bypass', true);
       await unlockPro();
     } else {

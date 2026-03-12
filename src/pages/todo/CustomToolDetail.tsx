@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { TodoItem, Folder } from '@/types/note';
 import { useSubscription, FREE_LIMITS } from '@/contexts/SubscriptionContext';
 import { loadTasksFromDB, saveTasksToDB, updateTaskInDB, deleteTaskFromDB } from '@/utils/taskStorage';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { TodoLayout } from './TodoLayout';
 import { TaskDateTimePage } from '@/components/TaskDateTimePage';
 import { TaskInputSheet } from '@/components/TaskInputSheet';
@@ -70,7 +71,7 @@ const CustomToolDetail = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const { getSetting } = await import('@/utils/settingsStorage');
+      
       
       // Load custom tool
       const savedTools = await getSetting<CustomTool[]>('customProductivityTools', []);
@@ -130,7 +131,6 @@ const CustomToolDetail = () => {
     
     // Also remove from tool's linked tasks
     if (tool) {
-      const { getSetting, setSetting } = await import('@/utils/settingsStorage');
       const savedTools = await getSetting<CustomTool[]>('customProductivityTools', []);
       const updatedTool = savedTools.map((t: CustomTool) => {
         if (t.id === tool.id) {
@@ -172,7 +172,6 @@ const CustomToolDetail = () => {
   const handleUnlinkTask = async (taskId: string) => {
     if (!tool) return;
     
-    const { getSetting, setSetting } = await import('@/utils/settingsStorage');
     const savedTools = await getSetting<CustomTool[]>('customProductivityTools', []);
     const updated = savedTools.map((t: CustomTool) => {
       if (t.id === tool.id) {
