@@ -26,13 +26,10 @@ export interface NoteMeta {
   reminderTime?: Date;
   createdAt: Date;
   updatedAt: Date;
-  // Content preview for search (first 200 chars only)
   contentPreview: string;
-  // Full content loaded on demand
   hasFullContent: boolean;
 }
 
-// Extract metadata from full note
 const extractNoteMeta = (note: Note): NoteMeta => ({
   id: note.id,
   type: note.type,
@@ -54,28 +51,36 @@ const extractNoteMeta = (note: Note): NoteMeta => ({
   reminderTime: note.reminderTime,
   createdAt: note.createdAt,
   updatedAt: note.updatedAt,
-  // Only store first 200 chars for search.
-  // IMPORTANT: this uses an early-exit extractor to avoid scanning 200k+ word notes.
   contentPreview: getTextPreviewFromHtml(note.content, 200),
   hasFullContent: true,
 });
 
-interface NotesContextType {
+// ── Split contexts ──
+
+/** Data context: notes array, metadata, loading state. Changes when notes data changes. */
+interface NotesDataContextType {
   notes: Note[];
   notesMeta: NoteMeta[];
   isLoading: boolean;
   isInitialized: boolean;
+  getNoteById: (noteId: string) => Note | undefined;
+}
+
+/** Dispatch context: actions only. Stable references — never causes re-renders. */
+interface NotesDispatchContextType {
   setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
   saveNote: (note: Note) => Promise<void>;
   deleteNote: (noteId: string) => Promise<void>;
   updateNote: (noteId: string, updates: Partial<Note>) => Promise<void>;
   bulkUpdateNotes: (noteIds: string[], updates: Partial<Note>) => Promise<void>;
   refreshNotes: () => Promise<void>;
-  // Get full note content on demand
-  getNoteById: (noteId: string) => Note | undefined;
 }
 
-const NotesContext = createContext<NotesContextType | undefined>(undefined);
+/** Combined type for backward compatibility */
+interface NotesContextType extends NotesDataContextType, NotesDispatchContextType {}
+
+const NotesDataContext = createContext<NotesDataContextType | undefined>(undefined);
+const NotesDispatchContext = createContext<NotesDispatchContextType | undefined>(undefined);
 
 export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -84,14 +89,11 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedRef = useRef<string>('');
 
-  // Memoized metadata extraction - this is what makes navigation instant!
-  // Use a stable reference check instead of building a massive string
-  const notesVersionRef = useRef(0);
+  // Memoized metadata
   const prevNotesRef = useRef<Note[]>([]);
   const cachedMetaRef = useRef<NoteMeta[]>([]);
 
   const notesMeta = useMemo(() => {
-    // Quick reference check - if same array, skip entirely
     if (notes === prevNotesRef.current && cachedMetaRef.current.length > 0) {
       return cachedMetaRef.current;
     }
@@ -109,18 +111,13 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         console.log('[NotesContext] Initializing notes...');
         const startTime = performance.now();
-
-        // Run migration once
         await migrateNotesToIndexedDB();
-
-        // Load all notes from IndexedDB
         const loadedNotes = await loadNotesFromDB();
 
         if (isMounted) {
           setNotes(loadedNotes);
           setIsInitialized(true);
           setIsLoading(false);
-          
           const duration = (performance.now() - startTime).toFixed(0);
           console.log(`[NotesContext] Loaded ${loadedNotes.length} notes in ${duration}ms`);
         }
@@ -135,15 +132,10 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     initializeNotes();
 
-    // Listen for notes updates from other sources (e.g., NoteEditor)
     const handleNotesUpdated = () => {
-      console.log('[NotesContext] External notes update detected, refreshing...');
       loadNotesFromDB().then(setNotes).catch(console.error);
     };
-
-    // Listen for notes restored from cloud sync
     const handleNotesRestored = () => {
-      console.log('[NotesContext] Notes restored from cloud, refreshing...');
       loadNotesFromDB().then(setNotes).catch(console.error);
     };
 
@@ -154,32 +146,23 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       isMounted = false;
       window.removeEventListener('notesUpdated', handleNotesUpdated);
       window.removeEventListener('notesRestored', handleNotesRestored);
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
   }, []);
 
-  // Debounced save to IndexedDB when notes change
+  // Debounced save
   const notesLengthRef = useRef(0);
   useEffect(() => {
     if (!isInitialized || notes.length === 0) return;
-
-    // Simple length + reference check instead of building massive hash string
     const changed = notes !== prevNotesRef.current || notes.length !== notesLengthRef.current;
     notesLengthRef.current = notes.length;
     if (!changed) return;
 
-    // Debounce saves to avoid too many writes
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(async () => {
       try {
         await saveNotesToDB(notes);
         lastSavedRef.current = String(notes.length);
-        console.log('[NotesContext] Notes saved to IndexedDB');
         window.dispatchEvent(new Event('notesUpdated'));
       } catch (error) {
         console.error('[NotesContext] Error saving notes:', error);
@@ -187,11 +170,9 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, 500);
   }, [notes, isInitialized]);
 
+  // ── Dispatch actions (stable — never change) ──
+
   const saveNote = useCallback(async (note: Note) => {
-    // Check if note already exists to determine action type
-    let isUpdate = false;
-    
-    // Ensure note has sync fields
     const noteWithSync: Note = {
       ...note,
       syncVersion: (note.syncVersion ?? 0) + 1,
@@ -199,10 +180,9 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       isDirty: true,
       deviceId: note.deviceId ?? getDeviceIdSync(),
     };
-    
+
     setNotes(prev => {
       const existingIdx = prev.findIndex(n => n.id === noteWithSync.id);
-      isUpdate = existingIdx >= 0;
       if (existingIdx >= 0) {
         const updated = [...prev];
         updated[existingIdx] = noteWithSync;
@@ -211,7 +191,6 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return [noteWithSync, ...prev];
     });
 
-    // Also save immediately for safety
     try {
       await saveNoteToDBSingle(noteWithSync);
     } catch (error) {
@@ -230,11 +209,9 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const updateNote = useCallback(async (noteId: string, updates: Partial<Note>) => {
     let updatedNote: Note | null = null;
-
     setNotes(prev =>
       prev.map(n => {
         if (n.id !== noteId) return n;
-
         updatedNote = {
           ...n,
           ...updates,
@@ -244,15 +221,12 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           isDirty: true,
           deviceId: n.deviceId ?? getDeviceIdSync(),
         };
-
         return updatedNote;
       })
     );
 
     try {
-      if (updatedNote) {
-        await saveNoteToDBSingle(updatedNote);
-      }
+      if (updatedNote) await saveNoteToDBSingle(updatedNote);
     } catch (error) {
       console.error('[NotesContext] Error persisting note update:', error);
     }
@@ -260,11 +234,9 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const bulkUpdateNotes = useCallback(async (noteIds: string[], updates: Partial<Note>) => {
     const updatedNotes: Note[] = [];
-
     setNotes(prev =>
       prev.map(n => {
         if (!noteIds.includes(n.id)) return n;
-
         const next: Note = {
           ...n,
           ...updates,
@@ -274,7 +246,6 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           isDirty: true,
           deviceId: n.deviceId ?? getDeviceIdSync(),
         };
-
         updatedNotes.push(next);
         return next;
       })
@@ -296,42 +267,65 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  // Get full note by ID - for when user opens a note
   const getNoteById = useCallback((noteId: string): Note | undefined => {
     return notes.find(n => n.id === noteId);
   }, [notes]);
 
-  const value: NotesContextType = {
+  // ── Memoized context values ──
+
+  const dataValue = useMemo<NotesDataContextType>(() => ({
     notes,
     notesMeta,
     isLoading,
     isInitialized,
+    getNoteById,
+  }), [notes, notesMeta, isLoading, isInitialized, getNoteById]);
+
+  const dispatchValue = useMemo<NotesDispatchContextType>(() => ({
     setNotes,
     saveNote,
     deleteNote,
     updateNote,
     bulkUpdateNotes,
     refreshNotes,
-    getNoteById,
-  };
+  }), [saveNote, deleteNote, updateNote, bulkUpdateNotes, refreshNotes]);
 
   return (
-    <NotesContext.Provider value={value}>
-      {children}
-    </NotesContext.Provider>
+    <NotesDispatchContext.Provider value={dispatchValue}>
+      <NotesDataContext.Provider value={dataValue}>
+        {children}
+      </NotesDataContext.Provider>
+    </NotesDispatchContext.Provider>
   );
 };
 
-export const useNotes = (): NotesContextType => {
-  const context = useContext(NotesContext);
-  if (!context) {
-    throw new Error('useNotes must be used within a NotesProvider');
-  }
+// ── Hooks ──
+
+/** Use only note data (notes, meta, loading). Re-renders when data changes. */
+export const useNotesData = (): NotesDataContextType => {
+  const context = useContext(NotesDataContext);
+  if (!context) throw new Error('useNotesData must be used within a NotesProvider');
   return context;
 };
 
-// Optional hook that returns empty state if context is not available
-// Useful for components that might render outside the provider
+/** Use only dispatch actions. Never re-renders — stable references. */
+export const useNotesDispatch = (): NotesDispatchContextType => {
+  const context = useContext(NotesDispatchContext);
+  if (!context) throw new Error('useNotesDispatch must be used within a NotesProvider');
+  return context;
+};
+
+/** Combined hook — backward compatible. Components using this re-render on data changes. */
+export const useNotes = (): NotesContextType => {
+  const data = useNotesData();
+  const dispatch = useNotesDispatch();
+  return { ...data, ...dispatch };
+};
+
+/** Optional hook that returns null if outside provider */
 export const useNotesOptional = (): NotesContextType | null => {
-  return useContext(NotesContext) || null;
+  const data = useContext(NotesDataContext);
+  const dispatch = useContext(NotesDispatchContext);
+  if (!data || !dispatch) return null;
+  return { ...data, ...dispatch };
 };
