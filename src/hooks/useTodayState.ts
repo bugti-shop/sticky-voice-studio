@@ -288,12 +288,12 @@ export const useTodayState = () => {
       dateFilter,
       tagFilter,
       sortBy,
-      searchQuery: viewModeSearch,
+      searchQuery: deferredSearch,
       showCompleted: true,
     };
 
     // Skip if payload hasn't changed
-    const key = JSON.stringify([smartList, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, sortBy, viewModeSearch, items.length]);
+    const key = JSON.stringify([smartList, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, sortBy, deferredSearch, items.length]);
     if (key === workerPayloadRef.current && workerResult) return;
     workerPayloadRef.current = key;
 
