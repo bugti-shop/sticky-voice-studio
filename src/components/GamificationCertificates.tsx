@@ -5,7 +5,7 @@
  * Includes confetti celebration for first-time unlocks
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
 import { m as motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,7 +13,7 @@ import {
   Flame, FileText, FolderOpen, Lock, ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { QRCodeSVG } from 'qrcode.react';
+const QRCodeSVG = lazy(() => import('qrcode.react').then(m => ({ default: m.QRCodeSVG })));
 import { Button } from '@/components/ui/button';
 import { triggerHaptic, triggerNotificationHaptic } from '@/utils/haptics';
 import { loadTodoItems } from '@/utils/todoItemsStorage';

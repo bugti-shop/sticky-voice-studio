@@ -1,11 +1,11 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, lazy, Suspense } from 'react';
 import { m as motion, AnimatePresence } from 'framer-motion';
 import { X, Share2, Copy, Check } from 'lucide-react';
 import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 import { Journey, JourneyProgress } from '@/utils/virtualJourneyStorage';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { triggerHaptic } from '@/utils/haptics';
-import { QRCodeSVG } from 'qrcode.react';
+const QRCodeSVG = lazy(() => import('qrcode.react').then(m => ({ default: m.QRCodeSVG })));
 import { format } from 'date-fns';
 import { lazyHtml2canvas } from '@/utils/lazyHtml2canvas';
 
