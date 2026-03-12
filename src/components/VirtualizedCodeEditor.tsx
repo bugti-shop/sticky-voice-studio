@@ -84,11 +84,9 @@ export const VirtualizedCodeEditor = ({
 
   // Load font size from IndexedDB
   useEffect(() => {
-    import('@/utils/settingsStorage').then(({ getSetting }) => {
-      getSetting<number>('code-editor-font-size', DEFAULT_FONT_SIZE).then(size => {
-        setFontSize(size);
-        setIsLoaded(true);
-      });
+    getSetting<number>('code-editor-font-size', DEFAULT_FONT_SIZE).then(size => {
+      setFontSize(size);
+      setIsLoaded(true);
     });
   }, []);
 
