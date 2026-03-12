@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useTaskWorker } from '@/hooks/useTaskWorker';
 import { recordCompletion, TASK_STREAK_KEY } from '@/utils/streakStorage';
 
 import { useTranslation } from 'react-i18next';
@@ -313,44 +314,56 @@ const Upcoming = () => {
     window.open(imageUrl, '_blank');
   };
 
-  // Apply filters
-  const filteredItems = useMemo(() => {
+  // Web Worker for heavy filtering + grouping
+  const worker = useTaskWorker();
+  const [workerGroups, setWorkerGroups] = useState<Record<string, any[]> | null>(null);
+
+  useEffect(() => {
+    if (!worker.isAvailable) return;
+    worker.upcomingGroup({
+      items,
+      smartList,
+      priorityFilter,
+      statusFilter,
+      selectedFolderId,
+      showCompleted,
+      sortOrder,
+      groupBy,
+    }).then(result => {
+      if (result) setWorkerGroups(result);
+    });
+  }, [items, smartList, priorityFilter, statusFilter, selectedFolderId, showCompleted, sortOrder, groupBy]);
+
+  // Main-thread fallback
+  const filteredItemsFallback = useMemo(() => {
+    if (workerGroups && worker.isAvailable) return null;
     let filtered = [...items];
-    
-    // Smart list filter
     if (smartList !== 'all') {
       const smartFilter = getSmartListFilter(smartList);
       filtered = filtered.filter(smartFilter);
     }
-    
-    // Priority filter
-    if (priorityFilter !== 'all') {
-      filtered = filtered.filter(item => item.priority === priorityFilter);
-    }
-    
-    // Status filter
+    if (priorityFilter !== 'all') filtered = filtered.filter(item => item.priority === priorityFilter);
     if (statusFilter !== 'all') {
-      if (statusFilter === 'completed') {
-        filtered = filtered.filter(item => item.completed);
-      } else {
-        filtered = filtered.filter(item => !item.completed);
-      }
+      if (statusFilter === 'completed') filtered = filtered.filter(item => item.completed);
+      else filtered = filtered.filter(item => !item.completed);
     }
-    
-    // Folder filter
-    if (selectedFolderId) {
-      filtered = filtered.filter(item => item.folderId === selectedFolderId);
-    }
-    
-    // Show/hide completed
-    if (!showCompleted) {
-      filtered = filtered.filter(item => !item.completed);
-    }
-    
+    if (selectedFolderId) filtered = filtered.filter(item => item.folderId === selectedFolderId);
+    if (!showCompleted) filtered = filtered.filter(item => !item.completed);
     return filtered;
-  }, [items, smartList, priorityFilter, statusFilter, selectedFolderId, showCompleted]);
+  }, [workerGroups, worker.isAvailable, items, smartList, priorityFilter, statusFilter, selectedFolderId, showCompleted]);
+
+  const filteredItems = filteredItemsFallback || [];
 
   const groupedTasks = useMemo(() => {
+    if (workerGroups && worker.isAvailable) {
+      // Map worker results back to full TodoItem references
+      const itemMap = new Map(items.map(i => [i.id, i]));
+      const result: Record<string, typeof items> = {};
+      for (const [key, tasks] of Object.entries(workerGroups)) {
+        result[key] = (tasks as any[]).map(t => itemMap.get(t.id)).filter(Boolean) as typeof items;
+      }
+      return result;
+    }
     const sorted = [...filteredItems].sort((a, b) => {
       if (!a.dueDate || !b.dueDate) return 0;
       const comparison = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
@@ -373,7 +386,7 @@ const Upcoming = () => {
       groups[groupKey].push(item);
     });
     return groups;
-  }, [filteredItems, sortOrder, groupBy]);
+  }, [workerGroups, worker.isAvailable, filteredItems, sortOrder, groupBy, items]);
 
   const getPriorityBorderColor = (priority?: Priority) => {
     switch (priority) {

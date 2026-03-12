@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useTaskWorker } from '@/hooks/useTaskWorker';
 import { useTranslation } from 'react-i18next';
 import { TodoItem } from '@/types/note';
 import { TodoLayout } from './TodoLayout';
@@ -61,10 +62,40 @@ const TaskHistory = () => {
     ? activeItems.filter(t => t.completed)
     : archivedItems;
 
+  // Web Worker for heavy filtering + grouping
+  const worker = useTaskWorker();
+  const [workerHistoryResult, setWorkerHistoryResult] = useState<{ filtered: any[]; groups: Record<string, any[]> } | null>(null);
+
+  useEffect(() => {
+    if (!worker.isAvailable) return;
+    worker.historyGroup({
+      items: sourceItems,
+      searchQuery,
+      filter,
+      sortBy,
+      dateFrom: dateFrom?.toISOString() || null,
+      dateTo: dateTo?.toISOString() || null,
+      labels: {
+        today: t('common.today'),
+        yesterday: t('common.yesterday'),
+        thisWeek: t('todayPage.thisWeek'),
+        month: t('taskHistory.month'),
+      },
+    }).then(result => {
+      if (result) setWorkerHistoryResult(result);
+    });
+  }, [sourceItems, searchQuery, filter, sortBy, dateFrom, dateTo]);
+
+  // Main-thread fallback
   const filteredTasks = useMemo(() => {
+    if (workerHistoryResult && worker.isAvailable) {
+      // Map back to full items
+      const itemMap = new Map(sourceItems.map(i => [i.id, i]));
+      return workerHistoryResult.filtered.map((t: any) => itemMap.get(t.id)).filter(Boolean) as TodoItem[];
+    }
+
     let filtered = [...sourceItems];
 
-    // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(t => 
@@ -119,9 +150,18 @@ const TaskHistory = () => {
     });
 
     return filtered;
-  }, [sourceItems, filter, sortBy, searchQuery, dateFrom, dateTo]);
+  }, [workerHistoryResult, worker.isAvailable, sourceItems, filter, sortBy, searchQuery, dateFrom, dateTo]);
 
   const groupedTasks = useMemo(() => {
+    if (workerHistoryResult && worker.isAvailable) {
+      const itemMap = new Map(sourceItems.map(i => [i.id, i]));
+      const result: Record<string, TodoItem[]> = {};
+      for (const [key, tasks] of Object.entries(workerHistoryResult.groups)) {
+        result[key] = (tasks as any[]).map(t => itemMap.get(t.id)).filter(Boolean) as TodoItem[];
+      }
+      return result;
+    }
+
     const groups: Record<string, TodoItem[]> = {};
     filteredTasks.forEach(task => {
       const date = task.completedAt ? new Date(task.completedAt) 
@@ -137,7 +177,7 @@ const TaskHistory = () => {
       groups[key].push(task);
     });
     return groups;
-  }, [filteredTasks]);
+  }, [workerHistoryResult, worker.isAvailable, filteredTasks, sourceItems]);
 
   const handleUnarchive = async (taskId: string) => {
     Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
