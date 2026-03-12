@@ -29,6 +29,12 @@ import { loadCustomSmartViews } from '@/utils/customSmartViews';
 import { useTodayState } from '@/hooks/useTodayState';
 import { useTodayActions } from '@/hooks/useTodayActions';
 import { TodaySheets } from '@/components/todo/TodaySheets';
+import { useVoicePlayback } from '@/hooks/useVoicePlayback';
+import { useTaskSwipe } from '@/hooks/useTaskSwipe';
+import { TimelineView } from '@/components/todo/TimelineView';
+import { ProgressView } from '@/components/todo/ProgressView';
+import { PriorityView } from '@/components/todo/PriorityView';
+import { HistoryView } from '@/components/todo/HistoryView';
 
 const Today = () => {
   const { t } = useTranslation();
