@@ -128,9 +128,12 @@ export const VirtualizedCodeEditor = ({
       setIsHighlighting(true);
 
       try {
-        // Lazy load highlight.js on first use (~200KB saved from initial bundle)
+        // Lazy load highlight.js + CSS on first use (~200KB saved from initial bundle)
         if (!hljsRef.current) {
-          const mod = await import('highlight.js');
+          const [mod] = await Promise.all([
+            import('highlight.js'),
+            import('highlight.js/styles/github-dark.css'),
+          ]);
           hljsRef.current = mod.default;
         }
         const hljs = hljsRef.current;
