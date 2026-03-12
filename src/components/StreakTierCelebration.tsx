@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m as motion, AnimatePresence } from 'framer-motion';
 import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 import { Crown } from 'lucide-react';
 import { type StreakTier } from '@/components/StreakSocietyBadge';

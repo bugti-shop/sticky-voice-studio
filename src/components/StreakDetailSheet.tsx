@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import { Flame, Trophy, Snowflake, Check, Calendar, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
