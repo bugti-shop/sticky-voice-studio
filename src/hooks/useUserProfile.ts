@@ -4,6 +4,7 @@ import { getSetting, setSetting } from '@/utils/settingsStorage';
 export interface UserProfile {
   name: string;
   avatarUrl: string;
+  coverUrl: string;
 }
 
 const PROFILE_KEY = 'npd_user_profile';
