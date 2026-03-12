@@ -7,6 +7,7 @@ import { migrateLocalStorageToIndexedDB, getSetting } from "./utils/settingsStor
 import { migrateNotesToIndexedDB } from "./utils/noteStorage";
 import { initializeProtectionSettings } from "./utils/noteProtection";
 import { configureStatusBar } from "./utils/statusBar";
+import { initializeTaskOrder } from "./utils/taskOrderStorage";
 
 // No loading screen - render nothing during suspense for instant feel
 const EmptyFallback = () => null;
