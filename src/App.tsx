@@ -313,17 +313,19 @@ const DeferredSyncHooks = lazy(() =>
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <GoogleAuthProvider>
-          <NotesProvider>
-            <WelcomeProvider>
-              <SubscriptionProvider>
-                <AppContent />
-              </SubscriptionProvider>
-            </WelcomeProvider>
-          </NotesProvider>
-        </GoogleAuthProvider>
-      </TooltipProvider>
+      <LazyMotion features={domAnimation} strict>
+        <TooltipProvider>
+          <GoogleAuthProvider>
+            <NotesProvider>
+              <WelcomeProvider>
+                <SubscriptionProvider>
+                  <AppContent />
+                </SubscriptionProvider>
+              </WelcomeProvider>
+            </NotesProvider>
+          </GoogleAuthProvider>
+        </TooltipProvider>
+      </LazyMotion>
     </QueryClientProvider>
   </ErrorBoundary>
 );
