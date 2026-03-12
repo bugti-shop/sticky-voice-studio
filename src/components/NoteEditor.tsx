@@ -17,7 +17,14 @@ import { InlineFindReplace } from './InlineFindReplace';
 
 import { VirtualizedCodeEditor } from './VirtualizedCodeEditor';
 import { lazy, Suspense } from 'react';
-const SketchEditor = lazy(() => import('./SketchEditor').then(m => ({ default: m.SketchEditor })));
+const SketchEditor = lazy(() =>
+  import('./SketchEditor')
+    .then(m => ({ default: m.SketchEditor }))
+    .catch(() => {
+      // Retry once on chunk fetch failure (stale hash after rebuild)
+      return import('./SketchEditor').then(m => ({ default: m.SketchEditor }));
+    })
+);
 import { SketchNotebookLibrary } from './SketchNotebookLibrary';
 import { TemplateSelector } from './TemplateSelector';
 import { NoteVersionHistorySheet } from './NoteVersionHistorySheet';
