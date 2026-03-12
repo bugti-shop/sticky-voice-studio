@@ -78,6 +78,7 @@ export const VirtualizedCodeEditor = ({
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 100 });
   const [currentLine, setCurrentLine] = useState(1);
   const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
+  const hljsRef = useRef<typeof import('highlight.js').default | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load font size from IndexedDB
