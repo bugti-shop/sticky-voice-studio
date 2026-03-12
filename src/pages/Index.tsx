@@ -7,7 +7,7 @@ import { NoteCard } from '@/components/NoteCard';
 import { NoteEditor } from '@/components/NoteEditor';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { SyncStatusButton } from '@/components/SyncStatusButton';
-import { PersonalizedTips } from '@/components/PersonalizedTips';
+
 import { FolderManager } from '@/components/FolderManager';
 import { MoveToFolderSheet } from '@/components/MoveToFolderSheet';
 import { NoteTemplateSheet } from '@/components/NoteTemplateSheet';
@@ -34,7 +34,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { getSuggestedFolders } from '@/utils/personalization';
+
 import { triggerHaptic } from '@/utils/haptics';
 import { saveNoteToDBSingle, deleteNoteFromDB, saveNotesToDB } from '@/utils/noteStorage';
 import { getSetting, setSetting } from '@/utils/settingsStorage';
@@ -132,9 +132,8 @@ const Index = () => {
   useEffect(() => { setSetting('notesFilterByType', filterByType); }, [filterByType]);
   useEffect(() => { setSetting('notesViewMode', viewMode); }, [viewMode]);
 
-  // Check onboarding status on mount
+   // Load folders on mount
   useEffect(() => {
-    // Initialize folders from personalized suggestions
     const loadFolders = async () => {
       const savedFolders = await getSetting<Folder[] | null>('folders', null);
       if (savedFolders) {
@@ -143,21 +142,6 @@ const Index = () => {
           createdAt: new Date(f.createdAt),
         })));
         foldersLoadedRef.current = true;
-      } else {
-        const answers = await getSetting<any>('onboardingAnswers', null);
-        if (answers) {
-          const suggestedFolders = getSuggestedFolders(answers);
-          const initialFolders: Folder[] = suggestedFolders.map((name, index) => ({
-            id: `folder-${Date.now()}-${index}`,
-            name,
-            isDefault: false,
-            createdAt: new Date(),
-            color: ['#3c78f0', '#10b981', '#f59e0b'][index % 3],
-          }));
-          setFolders(initialFolders);
-          setSetting('folders', initialFolders);
-          foldersLoadedRef.current = true;
-        }
       }
     };
     
@@ -871,7 +855,7 @@ const Index = () => {
       </header>
 
       <main className="container mx-auto px-2 xs:px-3 sm:px-4 py-2 xs:py-3">
-        <PersonalizedTips />
+        
 
         {/* Upcoming Reminders Section - hidden from home UI, functionality preserved */}
 

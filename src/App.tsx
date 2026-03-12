@@ -7,7 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { WelcomeProvider, useWelcome } from "@/contexts/WelcomeContext";
+
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { NotesProvider } from "@/contexts/NotesContext";
 import { GoogleAuthProvider } from "@/contexts/GoogleAuthContext";
@@ -341,11 +341,9 @@ const App = () => (
         <TooltipProvider>
           <GoogleAuthProvider>
             <NotesProvider>
-              <WelcomeProvider>
-                <SubscriptionProvider>
-                  <AppContent />
-                </SubscriptionProvider>
-              </WelcomeProvider>
+              <SubscriptionProvider>
+                <AppContent />
+              </SubscriptionProvider>
             </NotesProvider>
           </GoogleAuthProvider>
         </TooltipProvider>
