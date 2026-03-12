@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Share2, Copy, Check } from 'lucide-react';
-import Confetti from 'react-confetti';
+import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 import { Journey, JourneyProgress } from '@/utils/virtualJourneyStorage';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { triggerHaptic } from '@/utils/haptics';
