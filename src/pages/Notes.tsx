@@ -63,7 +63,7 @@ const Notes = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const { logo: appLogo, mood } = useRetentionLogo();
+  
   const { requireFeature, openPaywall, isPro } = useSubscription();
   
   // Use global notes context - no more local loading!
