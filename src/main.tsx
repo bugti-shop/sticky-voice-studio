@@ -34,20 +34,16 @@ scheduleDeferred(async () => {
   try {
     const [
       { initializeTaskOrder },
-      { initializeProtectionSettings },
       { startBackgroundScheduler },
       { initializeReminders },
       { initializeStreakNotifications },
       { initializeSmartNotifications },
-      { configureStatusBar },
     ] = await Promise.all([
       import("./utils/taskOrderStorage"),
-      import("./utils/noteProtection"),
       import("./utils/backgroundScheduler"),
       import("./utils/reminderScheduler"),
       import("./utils/streakNotifications"),
       import("./utils/smartNotifications"),
-      import("./utils/statusBar"),
     ]);
 
     // Run migrations in parallel
