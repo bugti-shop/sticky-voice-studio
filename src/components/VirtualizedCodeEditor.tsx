@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { ArrowLeft, Copy, Check, ChevronDown, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import { toast } from 'sonner';
-import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
 import { sanitizeCodeHtml } from '@/lib/sanitize';
 import {
