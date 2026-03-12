@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { saveTaskMedia, makeTaskMediaRef, deleteTaskMedia, parseTaskMediaRef, resolveTaskMediaUrl } from '@/utils/taskMediaStorage';
+import { saveTaskMedia, makeTaskMediaRef, deleteTaskMedia, parseTaskMediaRef } from '@/utils/taskMediaStorage';
 import { useTranslation } from 'react-i18next';
 import { TodoItem, Priority, Folder, Note, RepeatType, ColoredTag, TimeTracking, TaskStatus, LocationReminder, TaskAttachment, EscalationTiming } from '@/types/note';
 import { Button } from '@/components/ui/button';
