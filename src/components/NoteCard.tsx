@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { AppTag, getAllTags } from '@/utils/tagStorage';
 import { useTranslation } from 'react-i18next';
 import { Note } from '@/types/note';
