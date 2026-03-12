@@ -4051,7 +4051,8 @@ export const SketchEditor = memo(({ initialData, onChange, onImageExport, classN
       const allAnnotations = new Map(pdfAnnotations);
       allAnnotations.set(pdfPageIndex, currentAnnotations);
 
-      let pdf: jsPDF | null = null;
+      const { jsPDF } = await import('jspdf');
+      let pdf: InstanceType<typeof jsPDF> | null = null;
 
       for (let pageIdx = 0; pageIdx < pdfPages.length; pageIdx++) {
         const dim = pdfPageDimensions[pageIdx];
