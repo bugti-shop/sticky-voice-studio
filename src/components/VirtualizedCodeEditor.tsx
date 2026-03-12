@@ -126,37 +126,43 @@ export const VirtualizedCodeEditor = ({
     }
   }, [code]);
 
-  const highlightCode = useCallback((codeToHighlight: string, lang: string) => {
-    const highlightAsync = () => {
-      setIsHighlighting(true);
+  const highlightCode = useCallback(async (codeToHighlight: string, lang: string) => {
+    setIsHighlighting(true);
 
-      try {
-        let result: string;
-        let detected = lang;
+    try {
+      // Lazy load highlight.js on first use
+      if (!hljsRef.current) {
+        const mod = await import('highlight.js');
+        hljsRef.current = mod.default;
+      }
+      const hljs = hljsRef.current;
 
-        if (lang === 'auto' || !lang) {
-          const sample = codeToHighlight.substring(0, 2000);
-          const autoResult = hljs.highlightAuto(sample);
-          detected = autoResult.language || 'plaintext';
-          setDetectedLanguage(detected);
+      let result: string;
+      let detected = lang;
 
-          if (detected !== 'plaintext') {
-            result = hljs.highlight(codeToHighlight, { language: detected, ignoreIllegals: true }).value;
-          } else {
-            result = codeToHighlight.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-          }
-        } else if (lang === 'plaintext') {
-          result = codeToHighlight.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      if (lang === 'auto' || !lang) {
+        const sample = codeToHighlight.substring(0, 2000);
+        const autoResult = hljs.highlightAuto(sample);
+        detected = autoResult.language || 'plaintext';
+        setDetectedLanguage(detected);
+
+        if (detected !== 'plaintext') {
+          result = hljs.highlight(codeToHighlight, { language: detected, ignoreIllegals: true }).value;
         } else {
-          result = hljs.highlight(codeToHighlight, { language: lang, ignoreIllegals: true }).value;
+          result = codeToHighlight.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
-
-        setHighlightedLines(result.split('\n'));
-      } catch {
-        setHighlightedLines(code.split('\n').map(l => l.replace(/</g, '&lt;').replace(/>/g, '&gt;')));
+      } else if (lang === 'plaintext') {
+        result = codeToHighlight.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      } else {
+        result = hljs.highlight(codeToHighlight, { language: lang, ignoreIllegals: true }).value;
       }
 
-      setIsHighlighting(false);
+      setHighlightedLines(result.split('\n'));
+    } catch {
+      setHighlightedLines(code.split('\n').map(l => l.replace(/</g, '&lt;').replace(/>/g, '&gt;')));
+    }
+
+    setIsHighlighting(false);
     };
 
     if ('requestIdleCallback' in window) {
