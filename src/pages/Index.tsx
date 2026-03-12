@@ -26,7 +26,7 @@ import { Search, Plus, StickyNote, FileText, FileEdit, Pen, ListTodo, Bell, Cloc
 
 import { format, isToday, isTomorrow, differenceInDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { useRetentionLogo } from '@/hooks/useRetentionLogo';
+import appLogo from '@/assets/app-logo.webp';
 import {
   DropdownMenu,
   DropdownMenuContent,
