@@ -20,8 +20,8 @@ const ICON_COMPONENTS: Record<string, React.ComponentType<{ className?: string }
   User,
 };
 
-// Main pages are eagerly loaded - no preloading needed
-
+// Prefetch all lazy routes when browser is idle
+// (runs once per app session)
 export const BottomNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
