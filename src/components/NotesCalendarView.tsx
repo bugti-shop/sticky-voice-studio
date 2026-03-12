@@ -76,7 +76,6 @@ export const NotesCalendarView = ({
     }
 
     const loadNotes = async () => {
-      const { loadNotesFromDB } = await import('@/utils/noteStorage');
       const notes = await loadNotesFromDB();
       const dates = notes.map(note => new Date(note.createdAt));
       setNoteDates(dates);

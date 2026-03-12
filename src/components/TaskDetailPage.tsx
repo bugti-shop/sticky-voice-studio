@@ -554,7 +554,7 @@ export const TaskDetailPage = ({
 
 
   const handleOpenAttachment = async (attachment: TaskAttachment) => {
-    const { resolveTaskMediaUrl } = await import('@/utils/taskMediaStorage');
+    
     const dataUrl = await resolveTaskMediaUrl(attachment.ref);
     if (!dataUrl) return;
 

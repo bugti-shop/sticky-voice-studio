@@ -111,7 +111,6 @@ const WebClipper = () => {
       };
 
       // Save note to IndexedDB
-      const { loadNotesFromDB, saveNotesToDB } = await import('@/utils/noteStorage');
       const existingNotes = await loadNotesFromDB();
       const updatedNotes = [newNote, ...existingNotes];
       await saveNotesToDB(updatedNotes);

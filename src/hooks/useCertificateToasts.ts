@@ -34,11 +34,6 @@ export const useCertificateToasts = () => {
       checking.current = true;
 
       try {
-        const [{ loadTodoItems }, { loadNotesFromDB }, { loadFolders }] = await Promise.all([
-          import('@/utils/todoItemsStorage'),
-          import('@/utils/noteStorage'),
-          import('@/utils/folderStorage'),
-        ]);
 
         const [tasks, notes, folders, seenCerts, streakRaw, adminBypass] = await Promise.all([
           loadTodoItems(),

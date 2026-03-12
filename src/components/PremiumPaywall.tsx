@@ -64,7 +64,6 @@ export const PremiumPaywall = () => {
     setIsRestoring(true);
     try {
       if (Capacitor.isNativePlatform()) {
-        const { Purchases } = await import('@revenuecat/purchases-capacitor');
         const { customerInfo } = await Purchases.restorePurchases();
         const hasEntitlement = customerInfo.entitlements.active['npd Pro'] !== undefined;
         if (hasEntitlement) {

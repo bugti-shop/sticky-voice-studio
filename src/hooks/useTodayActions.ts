@@ -357,7 +357,6 @@ export const useTodayActions = (props: UseTodayActionsProps) => {
   }, [items, selectedFolderId, setItems, t]);
 
   const convertToNotes = useCallback(async (tasksToConvert: TodoItem[]) => {
-    const { loadNotesFromDB, saveNotesToDB } = await import('@/utils/noteStorage');
     const existingNotes = await loadNotesFromDB();
     const newNotes: Note[] = tasksToConvert.map((task, idx) => ({
       id: `${Date.now()}-${idx}`, type: 'regular' as const, title: task.text,

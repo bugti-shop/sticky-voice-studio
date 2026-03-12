@@ -752,7 +752,7 @@ export const NoteEditor = ({ note, isOpen, onClose, onSave, defaultType = 'regul
 
   const handleImageAdd = async (imageUrl: string) => {
     try {
-      const { compressImage, isCompressibleImage } = await import('@/utils/imageCompression');
+      const { compressImage: compress, isCompressibleImage: isCompressible } = await import('@/utils/imageCompression');
       if (isCompressibleImage(imageUrl)) {
         imageUrl = await compressImage(imageUrl, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
       }

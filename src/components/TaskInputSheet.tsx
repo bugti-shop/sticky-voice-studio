@@ -707,7 +707,7 @@ export const TaskInputSheet = ({ isOpen, onClose, onAddTask, folders, selectedFo
   };
 
   const handleRemoveAttachment = async (attachmentId: string) => {
-    const { deleteTaskMedia, parseTaskMediaRef } = await import('@/utils/taskMediaStorage');
+    
     const attachment = attachments.find(a => a.id === attachmentId);
     if (attachment) {
       const parsed = parseTaskMediaRef(attachment.ref);
