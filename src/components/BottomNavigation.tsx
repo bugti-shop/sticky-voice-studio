@@ -28,6 +28,9 @@ export const BottomNavigation = () => {
   const { t } = useTranslation();
   const customNavItems = useCustomNavigation();
 
+  // Prefetch all routes on idle after mount
+  useEffect(() => { prefetchAllOnIdle(); }, []);
+
   // Get display label - use custom label if set, otherwise translate
   const getDisplayLabel = (item: NavItem) => {
     return item.customLabel || t(`nav.${item.id}`, item.label);
