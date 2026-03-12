@@ -1,8 +1,10 @@
-import { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, Packer } from 'docx';
 import { Note } from '@/types/note';
-import { saveAs } from 'file-saver';
 
 export const exportNoteToDocx = async (note: Note) => {
+  const [{ Document, Paragraph, TextRun, HeadingLevel, Packer }, { saveAs }] = await Promise.all([
+    import('docx'),
+    import('file-saver'),
+  ]);
   const sections: any[] = [];
 
   // Title

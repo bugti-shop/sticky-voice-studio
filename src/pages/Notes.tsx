@@ -8,7 +8,7 @@ import { SyncStatusButton } from '@/components/SyncStatusButton';
 import { debouncedSaveNotes, saveNoteToDBSingle, saveNotesToDB, deleteNoteFromDB } from '@/utils/noteStorage';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { exportNoteToDocx } from '@/utils/exportToDocx';
+
 import { exportNoteToMarkdown } from '@/utils/markdownExport';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -516,7 +516,7 @@ const Notes = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-card z-50" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenuItem onClick={() => {
-                          exportNoteToDocx(note);
+                           import('@/utils/exportToDocx').then(({ exportNoteToDocx }) => exportNoteToDocx(note));
                           toast.success(t('notes.exportedToWord'));
                         }}>
                           <Download className="h-4 w-4 mr-2" />

@@ -1,13 +1,13 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Share2, Copy, Check } from 'lucide-react';
-import Confetti from 'react-confetti';
+import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 import { Journey, JourneyProgress } from '@/utils/virtualJourneyStorage';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { triggerHaptic } from '@/utils/haptics';
 import { QRCodeSVG } from 'qrcode.react';
 import { format } from 'date-fns';
-import html2canvas from 'html2canvas';
+import { lazyHtml2canvas } from '@/utils/lazyHtml2canvas';
 
 import { shareImageBlob } from '@/utils/shareImage';
 
@@ -106,7 +106,7 @@ export const JourneyCertificate = ({ open, onClose, journey, progress }: Journey
 
     try {
       const element = cardRef.current;
-      const canvas = await html2canvas(element, {
+      const canvas = await lazyHtml2canvas(element, {
         backgroundColor: null,
         useCORS: true,
         logging: false,

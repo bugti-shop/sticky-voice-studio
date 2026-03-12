@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import Confetti from 'react-confetti';
+import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, CheckSquare, Unlock, Bell, Crown, Loader2, Check } from 'lucide-react';
 // Google auth removed

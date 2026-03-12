@@ -24,7 +24,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import Confetti from 'react-confetti';
+import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 import { playAchievementSound } from '@/utils/gamificationSounds';
 import { JourneyCertificate } from '@/components/JourneyCertificate';
 import { MiniMedalBadge } from '@/components/MedalBadge';

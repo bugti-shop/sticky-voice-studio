@@ -25,7 +25,7 @@ import { CanvasTriangle, TriangleEdges, snapToTriangle } from '@/components/Canv
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
-import { jsPDF } from 'jspdf';
+
 import { toast } from 'sonner';
 
 // --- Imports from sketch modules ---
@@ -4032,6 +4032,7 @@ export const SketchEditor = memo(({ initialData, onChange, onImageExport, classN
 
     // If no PDF is loaded, export current canvas as single-page PDF
     if (pdfPages.length === 0) {
+      const { jsPDF } = await import('jspdf');
       const { w, h } = canvasSizeRef.current;
       const orientation = w >= h ? 'landscape' : 'portrait';
       const pdf = new jsPDF({ orientation, unit: 'px', format: [w, h] });
@@ -4050,7 +4051,8 @@ export const SketchEditor = memo(({ initialData, onChange, onImageExport, classN
       const allAnnotations = new Map(pdfAnnotations);
       allAnnotations.set(pdfPageIndex, currentAnnotations);
 
-      let pdf: jsPDF | null = null;
+      const { jsPDF } = await import('jspdf');
+      let pdf: InstanceType<typeof jsPDF> | null = null;
 
       for (let pageIdx = 0; pageIdx < pdfPages.length; pageIdx++) {
         const dim = pdfPageDimensions[pageIdx];
