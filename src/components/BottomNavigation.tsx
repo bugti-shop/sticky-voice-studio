@@ -1,10 +1,11 @@
-import { startTransition, useCallback } from 'react';
+import { startTransition, useCallback, useEffect } from 'react';
 import { Home, FileText, Calendar, User, Settings } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTranslation } from 'react-i18next';
 import { useCustomNavigation, NavItem } from './CustomizeNavigationSheet';
+import { prefetchRoute, prefetchAllOnIdle } from '@/utils/routePrefetch';
 
 const triggerNavHaptic = () => {
   triggerHaptic('heavy').catch(() => {});
