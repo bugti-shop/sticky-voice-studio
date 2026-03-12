@@ -271,8 +271,43 @@ export const useTodayState = () => {
     return () => { stopWatching?.(); };
   }, [items]);
 
-  // Processed items (filtered + sorted)
-  const processedItems = useMemo(() => {
+  // Web Worker for heavy filtering/sorting
+  const worker = useTaskWorker();
+  const [workerResult, setWorkerResult] = useState<FilterSortResult | null>(null);
+  const workerPayloadRef = useRef<string>('');
+
+  // Offload filtering + sorting to Web Worker
+  useEffect(() => {
+    const payload = {
+      items,
+      smartList,
+      selectedFolderId,
+      priorityFilter,
+      statusFilter,
+      dateFilter,
+      tagFilter,
+      sortBy,
+      searchQuery: viewModeSearch,
+      showCompleted: true,
+    };
+
+    // Skip if payload hasn't changed
+    const key = JSON.stringify([smartList, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, sortBy, viewModeSearch, items.length]);
+    if (key === workerPayloadRef.current && workerResult) return;
+    workerPayloadRef.current = key;
+
+    if (worker.isAvailable) {
+      worker.filterSort(payload).then(result => {
+        if (result) setWorkerResult(result);
+      });
+    }
+  }, [items, smartList, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, sortBy, viewModeSearch]);
+
+  // Main-thread fallback (used when worker hasn't returned yet or is unavailable)
+  const processedItemsFallback = useMemo(() => {
+    // If worker result is available, skip main-thread computation
+    if (workerResult && worker.isAvailable) return null;
+
     let filtered = items.filter(item => {
       if (smartList !== 'all') {
         const smartListFilter = getSmartListFilter(smartList);
@@ -322,15 +357,31 @@ export const useTodayState = () => {
       }
     });
     return filtered;
-  }, [items, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, smartList, sortBy]);
+  }, [workerResult, worker.isAvailable, items, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, smartList, sortBy]);
+
+  // Use worker result when available, fallback otherwise
+  const processedItems = useMemo(() => {
+    if (workerResult && worker.isAvailable) {
+      // Worker returns IDs-only results, but we need to map back to full items
+      // Worker returns MinimalTask objects — match by id to get full TodoItem references
+      const workerIds = new Set([...workerResult.uncompleted, ...workerResult.completed].map((t: any) => t.id));
+      // Preserve original item references, maintain worker ordering
+      const idOrder = new Map<string, number>();
+      [...workerResult.uncompleted, ...workerResult.completed].forEach((t: any, i: number) => idOrder.set(t.id, i));
+      return items.filter(i => workerIds.has(i.id)).sort((a, b) => (idOrder.get(a.id) ?? 0) - (idOrder.get(b.id) ?? 0));
+    }
+    return processedItemsFallback || [];
+  }, [workerResult, worker.isAvailable, items, processedItemsFallback]);
 
   const searchFilteredItems = useMemo(() => {
+    // If worker already handled search, skip client-side search
+    if (workerResult && worker.isAvailable && viewModeSearch.trim()) return processedItems;
     if (!viewModeSearch.trim()) return processedItems;
     const search = viewModeSearch.toLowerCase();
     return processedItems.filter(item => 
       item.text.toLowerCase().includes(search) || item.description?.toLowerCase().includes(search)
     );
-  }, [processedItems, viewModeSearch]);
+  }, [processedItems, viewModeSearch, workerResult, worker.isAvailable]);
 
   const uncompletedItems = useMemo(() => searchFilteredItems.filter(item => !item.completed), [searchFilteredItems]);
   const completedItems = useMemo(() => searchFilteredItems.filter(item => item.completed), [searchFilteredItems]);
