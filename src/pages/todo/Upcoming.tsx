@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useTransition, useDeferredValue } from 'react';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { useTaskWorker } from '@/hooks/useTaskWorker';
 import { recordCompletion, TASK_STREAK_KEY } from '@/utils/streakStorage';
 
