@@ -51,7 +51,6 @@ import {
 import { applySmartDetection, SmartDetectionSettings } from './richtext/richTextDetection';
 import { RICH_TEXT_EDITOR_STYLES } from './richtext/richTextStyles';
 
-import { VoiceRecording } from '@/types/note';
 
 interface RichTextEditorProps {
   content: string;
