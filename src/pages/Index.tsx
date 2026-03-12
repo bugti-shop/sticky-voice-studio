@@ -7,7 +7,7 @@ import { NoteCard } from '@/components/NoteCard';
 import { NoteEditor } from '@/components/NoteEditor';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { SyncStatusButton } from '@/components/SyncStatusButton';
-import { PersonalizedTips } from '@/components/PersonalizedTips';
+
 import { FolderManager } from '@/components/FolderManager';
 import { MoveToFolderSheet } from '@/components/MoveToFolderSheet';
 import { NoteTemplateSheet } from '@/components/NoteTemplateSheet';
