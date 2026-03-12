@@ -1,6 +1,4 @@
-import { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, Packer } from 'docx';
 import { Note } from '@/types/note';
-import { saveAs } from 'file-saver';
 
 export const exportNoteToDocx = async (note: Note) => {
   const sections: any[] = [];
