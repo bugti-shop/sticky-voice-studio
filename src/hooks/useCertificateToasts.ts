@@ -7,6 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { CertificateUnlockToast } from '@/components/CertificateUnlockToast';
 import { Shield, Star, Award, Crown, Gem } from 'lucide-react';
 import React from 'react';
+import { playAchievementSound } from '@/utils/gamificationSounds';
 
 /**
  * Simplified certificate definitions for toast display (avoids importing the full component).
@@ -98,7 +99,6 @@ export const useCertificateToasts = () => {
           const top = sorted[0];
           const meta = CERT_META[top];
           if (meta) {
-            const { playAchievementSound } = await import('@/utils/gamificationSounds');
             playAchievementSound();
 
             toast({

@@ -16,6 +16,7 @@ import { createNote } from '@/utils/noteDefaults';
 import { MasonryNotesGrid } from '@/components/MasonryNotesGrid';
 import { VirtualizedNotesGrid, VirtualizedNotesList, shouldVirtualizeNotes } from '@/components/VirtualizedNotesGrid';
 import { useNoteTypeVisibility } from '@/hooks/useNoteTypeVisibility';
+import { getVisibleFeatures } from '@/utils/noteTypeVisibility';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -59,14 +60,12 @@ const Index = () => {
   // Load feature visibility
   useEffect(() => {
     const loadFeatureVisibility = async () => {
-      const { getVisibleFeatures } = await import('@/utils/noteTypeVisibility');
       const features = await getVisibleFeatures();
       setShowNoteTemplates(features.includes('noteTemplates'));
     };
     loadFeatureVisibility();
     
     const handleChange = async () => {
-      const { getVisibleFeatures } = await import('@/utils/noteTypeVisibility');
       const features = await getVisibleFeatures();
       setShowNoteTemplates(features.includes('noteTemplates'));
     };

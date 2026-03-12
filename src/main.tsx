@@ -5,6 +5,8 @@ import "./index.css";
 import "./i18n";
 import { migrateLocalStorageToIndexedDB, getSetting } from "./utils/settingsStorage";
 import { migrateNotesToIndexedDB } from "./utils/noteStorage";
+import { initializeProtectionSettings } from "./utils/noteProtection";
+import { configureStatusBar } from "./utils/statusBar";
 
 // No loading screen - render nothing during suspense for instant feel
 const EmptyFallback = () => null;
@@ -32,20 +34,16 @@ scheduleDeferred(async () => {
   try {
     const [
       { initializeTaskOrder },
-      { initializeProtectionSettings },
       { startBackgroundScheduler },
       { initializeReminders },
       { initializeStreakNotifications },
       { initializeSmartNotifications },
-      { configureStatusBar },
     ] = await Promise.all([
       import("./utils/taskOrderStorage"),
-      import("./utils/noteProtection"),
       import("./utils/backgroundScheduler"),
       import("./utils/reminderScheduler"),
       import("./utils/streakNotifications"),
       import("./utils/smartNotifications"),
-      import("./utils/statusBar"),
     ]);
 
     // Run migrations in parallel
