@@ -1,4 +1,5 @@
 import { useEffect, useState, lazy, Suspense, startTransition, useRef } from "react";
+import { LazyMotion, domAnimation } from "framer-motion";
 import { useKeyboardHeight } from "@/hooks/useKeyboardHeight";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -312,17 +313,19 @@ const DeferredSyncHooks = lazy(() =>
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <GoogleAuthProvider>
-          <NotesProvider>
-            <WelcomeProvider>
-              <SubscriptionProvider>
-                <AppContent />
-              </SubscriptionProvider>
-            </WelcomeProvider>
-          </NotesProvider>
-        </GoogleAuthProvider>
-      </TooltipProvider>
+      <LazyMotion features={domAnimation}>
+        <TooltipProvider>
+          <GoogleAuthProvider>
+            <NotesProvider>
+              <WelcomeProvider>
+                <SubscriptionProvider>
+                  <AppContent />
+                </SubscriptionProvider>
+              </WelcomeProvider>
+            </NotesProvider>
+          </GoogleAuthProvider>
+        </TooltipProvider>
+      </LazyMotion>
     </QueryClientProvider>
   </ErrorBoundary>
 );

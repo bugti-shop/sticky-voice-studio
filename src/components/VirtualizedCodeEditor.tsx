@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { ArrowLeft, Copy, Check, ChevronDown, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import { toast } from 'sonner';
-import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
 import { sanitizeCodeHtml } from '@/lib/sanitize';
 import {
@@ -79,6 +78,7 @@ export const VirtualizedCodeEditor = ({
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 100 });
   const [currentLine, setCurrentLine] = useState(1);
   const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
+  const hljsRef = useRef<typeof import('highlight.js').default | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load font size from IndexedDB
@@ -127,10 +127,17 @@ export const VirtualizedCodeEditor = ({
   }, [code]);
 
   const highlightCode = useCallback((codeToHighlight: string, lang: string) => {
-    const highlightAsync = () => {
+    const highlightAsync = async () => {
       setIsHighlighting(true);
 
       try {
+        // Lazy load highlight.js on first use (~200KB saved from initial bundle)
+        if (!hljsRef.current) {
+          const mod = await import('highlight.js');
+          hljsRef.current = mod.default;
+        }
+        const hljs = hljsRef.current;
+
         let result: string;
         let detected = lang;
 
@@ -160,9 +167,9 @@ export const VirtualizedCodeEditor = ({
     };
 
     if ('requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(highlightAsync, { timeout: 500 });
+      (window as any).requestIdleCallback(() => highlightAsync(), { timeout: 500 });
     } else {
-      setTimeout(highlightAsync, 0);
+      setTimeout(() => highlightAsync(), 0);
     }
   }, []);
 
