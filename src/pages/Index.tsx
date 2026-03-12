@@ -46,7 +46,7 @@ const Index = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const { logo: appLogo, mood } = useRetentionLogo();
+  
   
   // Use global notes context - no more local loading!
   const { notes, setNotes, notesMeta, isLoading: notesLoading } = useNotes();
