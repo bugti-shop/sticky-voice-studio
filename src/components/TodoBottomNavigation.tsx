@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTranslation } from 'react-i18next';
 import { getSetting } from '@/utils/settingsStorage';
+import { prefetchRoute } from '@/utils/routePrefetch';
 
 const triggerNavHaptic = () => {
   triggerHaptic('heavy').catch(() => {});
