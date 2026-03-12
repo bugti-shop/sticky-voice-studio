@@ -341,11 +341,9 @@ const App = () => (
         <TooltipProvider>
           <GoogleAuthProvider>
             <NotesProvider>
-              <WelcomeProvider>
-                <SubscriptionProvider>
-                  <AppContent />
-                </SubscriptionProvider>
-              </WelcomeProvider>
+              <SubscriptionProvider>
+                <AppContent />
+              </SubscriptionProvider>
             </NotesProvider>
           </GoogleAuthProvider>
         </TooltipProvider>

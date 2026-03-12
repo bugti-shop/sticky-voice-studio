@@ -132,9 +132,8 @@ const Index = () => {
   useEffect(() => { setSetting('notesFilterByType', filterByType); }, [filterByType]);
   useEffect(() => { setSetting('notesViewMode', viewMode); }, [viewMode]);
 
-  // Check onboarding status on mount
+   // Load folders on mount
   useEffect(() => {
-    // Initialize folders from personalized suggestions
     const loadFolders = async () => {
       const savedFolders = await getSetting<Folder[] | null>('folders', null);
       if (savedFolders) {
@@ -143,21 +142,6 @@ const Index = () => {
           createdAt: new Date(f.createdAt),
         })));
         foldersLoadedRef.current = true;
-      } else {
-        const answers = await getSetting<any>('onboardingAnswers', null);
-        if (answers) {
-          const suggestedFolders = getSuggestedFolders(answers);
-          const initialFolders: Folder[] = suggestedFolders.map((name, index) => ({
-            id: `folder-${Date.now()}-${index}`,
-            name,
-            isDefault: false,
-            createdAt: new Date(),
-            color: ['#3c78f0', '#10b981', '#f59e0b'][index % 3],
-          }));
-          setFolders(initialFolders);
-          setSetting('folders', initialFolders);
-          foldersLoadedRef.current = true;
-        }
       }
     };
     
