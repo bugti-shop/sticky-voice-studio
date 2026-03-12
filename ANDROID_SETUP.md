@@ -114,6 +114,55 @@ Add the splash screen theme to your launch theme:
 
 ---
 
+## APK/Bundle Size Optimization (ProGuard & Resource Shrinking)
+
+Yeh code `android/app/build.gradle` file mein `android { }` block ke andar daalna hai:
+
+```gradle
+android {
+    // ... baqi existing config
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+```
+
+### ProGuard Rules
+
+File create karo: `android/app/proguard-rules.pro`
+
+```proguard
+# Capacitor
+-keep class com.getcapacitor.** { *; }
+-keep @com.getcapacitor.annotation.CapacitorPlugin class * { *; }
+
+# RevenueCat
+-keep class com.revenuecat.purchases.** { *; }
+
+# Google Play Billing
+-keep class com.android.vending.billing.** { *; }
+
+# Social Login
+-keep class ee.forgr.capacitor.social.login.** { *; }
+
+# Your custom plugins
+-keep class nota.npd.com.** { *; }
+
+# WebView JS interface
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+```
+
+> **Note:** `minifyEnabled true` = unused Java/Kotlin code remove karta hai (R8/ProGuard). `shrinkResources true` = unused resources (images, layouts) remove karta hai. Dono milke APK/Bundle size **30-50%** tak kam kar sakte hain (24MB → ~12-16MB expected).
+
+---
+
 ## Billing & Splash Screen Dependencies
 
 Add these to your `android/app/build.gradle`:
@@ -316,4 +365,3 @@ The web-side code is in `src/utils/dynamicIcon.ts` — it calls the native plugi
 - Some launchers may show a brief "app info changed" toast
 - The `DONT_KILL_APP` flag prevents the app from being killed during the switch
 - On web/PWA this feature is a no-op (graceful fallback)
-
