@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getSetting, setSetting } from '@/utils/settingsStorage';
+import { compressImage, isCompressibleImage } from '@/utils/imageCompression';
 import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTranslation } from 'react-i18next';
