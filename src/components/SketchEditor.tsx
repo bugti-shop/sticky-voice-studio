@@ -3989,6 +3989,8 @@ export const SketchEditor = memo(({ initialData, onChange, onImageExport, classN
   const nativeSaveAndShare = useCallback(async (base64Data: string, filename: string, mimeType: string, shareOnly = false) => {
     if (Capacitor.isNativePlatform()) {
       try {
+        const { Filesystem, Directory } = await import('@capacitor/filesystem');
+        const { Share } = await import('@capacitor/share');
         const result = await Filesystem.writeFile({
           path: filename,
           data: base64Data,
