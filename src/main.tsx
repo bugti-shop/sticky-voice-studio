@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
 import { migrateLocalStorageToIndexedDB, getSetting } from "./utils/settingsStorage";
+import { migrateNotesToIndexedDB } from "./utils/noteStorage";
 
 // No loading screen - render nothing during suspense for instant feel
 const EmptyFallback = () => null;
