@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useTaskWorker } from '@/hooks/useTaskWorker';
 import { recordCompletion, TASK_STREAK_KEY } from '@/utils/streakStorage';
 
 import { useTranslation } from 'react-i18next';
