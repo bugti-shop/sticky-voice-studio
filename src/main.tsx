@@ -34,13 +34,11 @@ createRoot(document.getElementById("root")!).render(
 scheduleDeferred(async () => {
   try {
     const [
-      { initializeTaskOrder },
       { startBackgroundScheduler },
       { initializeReminders },
       { initializeStreakNotifications },
       { initializeSmartNotifications },
     ] = await Promise.all([
-      import("./utils/taskOrderStorage"),
       import("./utils/backgroundScheduler"),
       import("./utils/reminderScheduler"),
       import("./utils/streakNotifications"),
