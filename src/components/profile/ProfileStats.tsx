@@ -31,7 +31,7 @@ export const useProfileStats = () => {
 
         // Count unique sections from tasks
         const sectionSet = new Set<string>();
-        tasks.forEach(t => { if (t.section) sectionSet.add(t.section); });
+        tasks.forEach(t => { if (t.sectionId) sectionSet.add(t.sectionId); });
 
         setStats({
           notes: notes.length,
