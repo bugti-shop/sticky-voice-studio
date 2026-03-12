@@ -891,244 +891,62 @@ const Today = () => {
               </div>
             </DragDropContext>
           ) : viewMode === 'timeline' ? (
-            <DragDropContext onDragEnd={(result) => {
-              if (!result.destination) return;
-              const { source, destination, draggableId } = result;
-              const taskId = draggableId;
-              if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-              const today = new Date();
-              if (source.droppableId !== destination.droppableId) {
-                let newDate: Date | undefined;
-                if (destination.droppableId === 'timeline-overdue') newDate = subDays(today, 1);
-                else if (destination.droppableId === 'timeline-today') newDate = today;
-                else if (destination.droppableId === 'timeline-tomorrow') { newDate = new Date(); newDate.setDate(newDate.getDate() + 1); }
-                else if (destination.droppableId === 'timeline-thisweek') { newDate = new Date(); newDate.setDate(newDate.getDate() + 3); }
-                else if (destination.droppableId === 'timeline-later') { newDate = new Date(); newDate.setDate(newDate.getDate() + 14); }
-                else if (destination.droppableId === 'timeline-nodate') newDate = undefined;
-                updateItem(taskId, { dueDate: newDate });
-                Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-                toast.success('Task date updated');
-              }
-              const destGroup = destination.droppableId;
-              const destGroupTasks = items.filter(item => !item.completed).filter(item => {
-                const d = item.dueDate ? new Date(item.dueDate) : null;
-                if (destGroup === 'timeline-overdue') return d && isBefore(d, startOfDay(today));
-                if (destGroup === 'timeline-today') return d && isToday(d);
-                if (destGroup === 'timeline-tomorrow') return d && isTomorrow(d);
-                if (destGroup === 'timeline-thisweek') return d && isThisWeek(d) && !isToday(d) && !isTomorrow(d);
-                if (destGroup === 'timeline-later') return d && !isBefore(d, startOfDay(today)) && !isThisWeek(d);
-                if (destGroup === 'timeline-nodate') return !d;
-                return false;
-              });
-              const ordered = applyTaskOrder(destGroupTasks, destGroup);
-              const ids = ordered.map(t => t.id);
-              const idx = ids.indexOf(taskId);
-              if (idx !== -1) ids.splice(idx, 1);
-              ids.splice(destination.index, 0, taskId);
-              updateSectionOrder(destGroup, ids);
-              setOrderVersion(v => v + 1);
-              Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
-            }}>
-              <div className="space-y-6">
-                {(() => {
-                  const today = startOfDay(new Date());
-                  const timelineGroups = [
-                    { id: 'timeline-overdue', label: t('grouping.overdue'), tasks: uncompletedItems.filter(item => item.dueDate && isBefore(new Date(item.dueDate), today)), color: '#ef4444', icon: <AlertCircle className="h-4 w-4" /> },
-                    { id: 'timeline-today', label: t('grouping.today'), tasks: uncompletedItems.filter(item => item.dueDate && isToday(new Date(item.dueDate))), color: '#3b82f6', icon: <Sun className="h-4 w-4" /> },
-                    { id: 'timeline-tomorrow', label: t('grouping.tomorrow'), tasks: uncompletedItems.filter(item => item.dueDate && isTomorrow(new Date(item.dueDate))), color: '#f59e0b', icon: <CalendarIcon2 className="h-4 w-4" /> },
-                    { id: 'timeline-thisweek', label: t('grouping.thisWeek'), tasks: uncompletedItems.filter(item => item.dueDate && isThisWeek(new Date(item.dueDate)) && !isToday(new Date(item.dueDate)) && !isTomorrow(new Date(item.dueDate))), color: '#10b981', icon: <CalendarIcon2 className="h-4 w-4" /> },
-                    { id: 'timeline-later', label: t('grouping.later'), tasks: uncompletedItems.filter(item => item.dueDate && !isBefore(new Date(item.dueDate), today) && !isThisWeek(new Date(item.dueDate))), color: '#8b5cf6', icon: <Clock className="h-4 w-4" /> },
-                    { id: 'timeline-nodate', label: t('grouping.noDate'), tasks: uncompletedItems.filter(item => !item.dueDate), color: '#6b7280', icon: <CalendarX className="h-4 w-4" /> },
-                  ];
-                  return (<>{timelineGroups.map((group) => {
-                    const isCollapsed = collapsedViewSections.has(group.id);
-                    const orderedTasks = applyTaskOrder(group.tasks, group.id);
-                    return (
-                      <div key={group.id} className="bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                        {renderViewModeSectionHeader(group.label, group.tasks.length, group.color, group.icon, group.id)}
-                        {!isCollapsed && (
-                          <Droppable droppableId={group.id}>
-                            {(provided, snapshot) => (
-                              <div ref={provided.innerRef} {...provided.droppableProps} className={cn("p-2 space-y-2 min-h-[50px]", snapshot.isDraggingOver && "bg-primary/5")}>
-                                {orderedTasks.map((item, index) => (
-                                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                                    {(provided, snapshot) => (
-                                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={cn("bg-card rounded-lg border border-border/50", snapshot.isDragging && "shadow-lg ring-2 ring-primary")}>
-                                        {renderTaskItem(item)}{renderSubtasksInline(item)}
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {provided.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
-                        )}
-                      </div>
-                    );
-                  })}{renderCompletedSectionForViewMode()}</>);
-                })()}
-              </div>
-            </DragDropContext>
+            <TimelineView
+              uncompletedItems={uncompletedItems}
+              completedItems={completedItems}
+              showCompleted={showCompleted}
+              collapsedViewSections={collapsedViewSections}
+              toggleViewSectionCollapse={toggleViewSectionCollapse}
+              renderTaskItem={renderTaskItem}
+              renderSubtasksInline={renderSubtasksInline}
+              renderCompletedSection={renderCompletedSectionForViewMode}
+              onDragEnd={(taskId, destGroup, destIndex, sourceGroup) => {
+                if (sourceGroup !== destGroup) {
+                  const today = new Date();
+                  let newDate: Date | undefined;
+                  if (destGroup === 'timeline-overdue') newDate = subDays(today, 1);
+                  else if (destGroup === 'timeline-today') newDate = today;
+                  else if (destGroup === 'timeline-tomorrow') { newDate = new Date(); newDate.setDate(newDate.getDate() + 1); }
+                  else if (destGroup === 'timeline-thisweek') { newDate = new Date(); newDate.setDate(newDate.getDate() + 3); }
+                  else if (destGroup === 'timeline-later') { newDate = new Date(); newDate.setDate(newDate.getDate() + 14); }
+                  else if (destGroup === 'timeline-nodate') newDate = undefined;
+                  updateItem(taskId, { dueDate: newDate });
+                  Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
+                  toast.success('Task date updated');
+                }
+              }}
+              setOrderVersion={setOrderVersion}
+            />
           ) : viewMode === 'progress' ? (
-            <DragDropContext onDragEnd={(result) => {
-              if (!result.destination) return;
-              const { source, destination } = result;
-              const taskId = result.draggableId;
-              const destGroup = destination.droppableId;
-              if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-              const destGroupTasks = items.filter(item => !item.completed).filter(item => {
-                const hs = item.subtasks && item.subtasks.length > 0;
-                const cs = hs ? item.subtasks!.filter(st => st.completed).length : 0;
-                const ts = hs ? item.subtasks!.length : 0;
-                const cp = hs ? cs / ts : 0;
-                if (destGroup === 'progress-notstarted') return !hs || cs === 0;
-                if (destGroup === 'progress-inprogress') return hs && cs > 0 && cp < 0.75;
-                if (destGroup === 'progress-almostdone') return hs && cp >= 0.75 && cs < ts;
-                return false;
-              });
-              const ordered = applyTaskOrder(destGroupTasks, destGroup);
-              const ids = ordered.map(t => t.id);
-              const idx = ids.indexOf(taskId);
-              if (idx !== -1) ids.splice(idx, 1);
-              ids.splice(destination.index, 0, taskId);
-              updateSectionOrder(destGroup, ids);
-              setOrderVersion(v => v + 1);
-              Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
-            }}>
-              <div className="space-y-6">
-                {(() => {
-                  const notStarted = uncompletedItems.filter(item => !item.subtasks || item.subtasks.length === 0 || item.subtasks.every(st => !st.completed));
-                  const inProgress = uncompletedItems.filter(item => item.subtasks && item.subtasks.length > 0 && item.subtasks.some(st => st.completed) && item.subtasks.some(st => !st.completed));
-                  const almostDone = uncompletedItems.filter(item => item.subtasks && item.subtasks.length > 0 && item.subtasks.filter(st => st.completed).length >= item.subtasks.length * 0.75 && item.subtasks.some(st => !st.completed));
-                  const progressGroups = [
-                    { id: 'progress-notstarted', label: t('grouping.notStarted'), tasks: notStarted.filter(t => !inProgress.includes(t) && !almostDone.includes(t)), color: '#6b7280', percent: '0%' },
-                    { id: 'progress-inprogress', label: t('grouping.inProgress'), tasks: inProgress.filter(t => !almostDone.includes(t)), color: '#f59e0b', percent: '25-74%' },
-                    { id: 'progress-almostdone', label: t('grouping.almostDone'), tasks: almostDone, color: '#10b981', percent: '75%+' },
-                  ];
-                  return (<>{progressGroups.map((group) => {
-                    const isCollapsed = collapsedViewSections.has(group.id);
-                    const orderedTasks = applyTaskOrder(group.tasks, group.id);
-                    return (
-                      <div key={group.id} className="bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                        {renderViewModeSectionHeader(group.label, group.tasks.length, group.color, <TrendingUp className="h-4 w-4" />, group.id, <span className="text-xs text-muted-foreground">{group.percent}</span>)}
-                        {!isCollapsed && (
-                          <Droppable droppableId={group.id}>
-                            {(provided, snapshot) => (
-                              <div ref={provided.innerRef} {...provided.droppableProps} className={cn("p-2 space-y-2 min-h-[50px]", snapshot.isDraggingOver && "bg-primary/5")}>
-                                {orderedTasks.map((item, index) => (
-                                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                                    {(provided, snapshot) => (
-                                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={cn("bg-card rounded-lg border border-border/50 overflow-hidden", snapshot.isDragging && "shadow-lg ring-2 ring-primary")}>
-                                        {renderTaskItem(item)}{renderSubtasksInline(item)}
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {provided.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
-                        )}
-                      </div>
-                    );
-                  })}{renderCompletedSectionForViewMode()}</>);
-                })()}
-              </div>
-            </DragDropContext>
+            <ProgressView
+              uncompletedItems={uncompletedItems}
+              collapsedViewSections={collapsedViewSections}
+              toggleViewSectionCollapse={toggleViewSectionCollapse}
+              renderTaskItem={renderTaskItem}
+              renderSubtasksInline={renderSubtasksInline}
+              renderCompletedSection={renderCompletedSectionForViewMode}
+              setOrderVersion={setOrderVersion}
+            />
           ) : viewMode === 'priority' ? (
-            <DragDropContext onDragEnd={(result) => {
-              if (!result.destination) return;
-              const { source, destination, draggableId } = result;
-              const taskId = draggableId;
-              const destGroup = destination.droppableId;
-              if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-              if (source.droppableId !== destGroup) {
-                let newPriority: Priority = 'none';
-                if (destGroup === 'priority-high') newPriority = 'high';
-                else if (destGroup === 'priority-medium') newPriority = 'medium';
-                else if (destGroup === 'priority-low') newPriority = 'low';
-                updateItem(taskId, { priority: newPriority });
-                Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-                toast.success(t('todayPage.priorityUpdated'));
-              }
-              const destGroupTasks = items.filter(item => !item.completed).filter(item => {
-                if (destGroup === 'priority-high') return item.priority === 'high';
-                if (destGroup === 'priority-medium') return item.priority === 'medium';
-                if (destGroup === 'priority-low') return item.priority === 'low';
-                if (destGroup === 'priority-none') return !item.priority || item.priority === 'none';
-                return false;
-              });
-              const ordered = applyTaskOrder(destGroupTasks, destGroup);
-              const ids = ordered.map(t => t.id);
-              const idx = ids.indexOf(taskId);
-              if (idx !== -1) ids.splice(idx, 1);
-              ids.splice(destination.index, 0, taskId);
-              updateSectionOrder(destGroup, ids);
-              setOrderVersion(v => v + 1);
-              Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
-            }}>
-              <div className="space-y-6">
-                {(() => {
-                  const priorityGroups = [
-                    { id: 'priority-high', label: t('grouping.highPriority', 'High Priority'), tasks: uncompletedItems.filter(i => i.priority === 'high'), color: getPriorityColor('high'), icon: <Flame className="h-4 w-4" style={{ color: getPriorityColor('high') }} /> },
-                    { id: 'priority-medium', label: t('grouping.mediumPriority', 'Medium Priority'), tasks: uncompletedItems.filter(i => i.priority === 'medium'), color: getPriorityColor('medium'), icon: <Flag className="h-4 w-4" style={{ color: getPriorityColor('medium') }} /> },
-                    { id: 'priority-low', label: t('grouping.lowPriority', 'Low Priority'), tasks: uncompletedItems.filter(i => i.priority === 'low'), color: getPriorityColor('low'), icon: <Flag className="h-4 w-4" style={{ color: getPriorityColor('low') }} /> },
-                    { id: 'priority-none', label: t('grouping.noPriority', 'No Priority'), tasks: uncompletedItems.filter(i => !i.priority || i.priority === 'none'), color: getPriorityColor('none'), icon: <Flag className="h-4 w-4" style={{ color: getPriorityColor('none') }} /> },
-                  ];
-                  return (<>{priorityGroups.map((group) => {
-                    const isCollapsed = collapsedViewSections.has(group.id);
-                    const orderedTasks = applyTaskOrder(group.tasks, group.id);
-                    return (
-                      <div key={group.id} className="bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                        {renderViewModeSectionHeader(group.label, group.tasks.length, group.color, group.icon, group.id)}
-                        {!isCollapsed && (
-                          <Droppable droppableId={group.id}>
-                            {(provided, snapshot) => (
-                              <div ref={provided.innerRef} {...provided.droppableProps} className={cn("p-2 space-y-2 min-h-[50px]", snapshot.isDraggingOver && "bg-primary/5")}>
-                                {orderedTasks.map((item, index) => (
-                                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                                    {(provided, snapshot) => (
-                                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={cn("bg-card rounded-lg border border-border/50 overflow-hidden", snapshot.isDragging && "shadow-lg ring-2 ring-primary")}>
-                                        {renderTaskItem(item)}{renderSubtasksInline(item)}
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {provided.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
-                        )}
-                      </div>
-                    );
-                  })}{renderCompletedSectionForViewMode()}</>);
-                })()}
-              </div>
-            </DragDropContext>
+            <PriorityView
+              uncompletedItems={uncompletedItems}
+              collapsedViewSections={collapsedViewSections}
+              toggleViewSectionCollapse={toggleViewSectionCollapse}
+              renderTaskItem={renderTaskItem}
+              renderSubtasksInline={renderSubtasksInline}
+              renderCompletedSection={renderCompletedSectionForViewMode}
+              updateItem={updateItem}
+              getPriorityColor={getPriorityColor}
+              items={items}
+              setOrderVersion={setOrderVersion}
+            />
           ) : viewMode === 'history' ? (
-            <div className="space-y-6">
-              {(() => {
-                const historyGroups = [
-                  { label: t('grouping.completedToday', 'Completed Today'), tasks: completedItems.filter(item => item.dueDate && isToday(new Date(item.dueDate))), color: '#10b981' },
-                  { label: t('grouping.completedYesterday', 'Completed Yesterday'), tasks: completedItems.filter(item => item.dueDate && isYesterday(new Date(item.dueDate))), color: '#3b82f6' },
-                  { label: t('grouping.thisWeek', 'This Week'), tasks: completedItems.filter(item => item.dueDate && isThisWeek(new Date(item.dueDate)) && !isToday(new Date(item.dueDate)) && !isYesterday(new Date(item.dueDate))), color: '#8b5cf6' },
-                  { label: t('grouping.older', 'Older'), tasks: completedItems.filter(item => !item.dueDate || (!isThisWeek(new Date(item.dueDate)))), color: '#6b7280' },
-                ];
-                return historyGroups.filter(g => g.tasks.length > 0).length === 0 ? (
-                  <div className="text-center py-20"><History className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" /><p className="text-muted-foreground">{t('emptyStates.noCompletedTasks')}</p></div>
-                ) : (<>{historyGroups.filter(g => g.tasks.length > 0).map((group) => {
-                  const sectionId = `history-${group.label.toLowerCase().replace(/\s+/g, '-')}`;
-                  const isCollapsed = collapsedViewSections.has(sectionId);
-                  return (
-                    <div key={group.label} className="bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                      {renderViewModeSectionHeader(group.label, group.tasks.length, group.color, <CheckCircle2 className="h-4 w-4" />, sectionId)}
-                      {!isCollapsed && <div className="p-2 space-y-2">{group.tasks.map((item) => (<div key={item.id} className="bg-card rounded-lg border border-border/50 opacity-70">{renderTaskItem(item)}</div>))}</div>}
-                    </div>
-                  );
-                })}</>);
-              })()}
-            </div>
+            <HistoryView
+              completedItems={completedItems}
+              collapsedViewSections={collapsedViewSections}
+              toggleViewSectionCollapse={toggleViewSectionCollapse}
+              renderTaskItem={renderTaskItem}
+            />
           ) : groupByOption !== 'none' ? (
             <DragDropContext onDragEnd={(result) => {
               if (!result.destination) return;
