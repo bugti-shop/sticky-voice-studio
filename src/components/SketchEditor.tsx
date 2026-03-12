@@ -25,7 +25,7 @@ import { CanvasTriangle, TriangleEdges, snapToTriangle } from '@/components/Canv
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
-import { jsPDF } from 'jspdf';
+
 import { toast } from 'sonner';
 
 // --- Imports from sketch modules ---
