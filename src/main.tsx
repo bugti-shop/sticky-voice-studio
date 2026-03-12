@@ -5,6 +5,8 @@ import "./index.css";
 import "./i18n";
 import { migrateLocalStorageToIndexedDB, getSetting } from "./utils/settingsStorage";
 import { migrateNotesToIndexedDB } from "./utils/noteStorage";
+import { initializeProtectionSettings } from "./utils/noteProtection";
+import { configureStatusBar } from "./utils/statusBar";
 
 // No loading screen - render nothing during suspense for instant feel
 const EmptyFallback = () => null;
