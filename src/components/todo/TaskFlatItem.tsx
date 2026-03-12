@@ -2,7 +2,7 @@
  * TaskFlatItem — Renders a single task in the flat layout style.
  * Extracted from Today.tsx renderTaskItem function.
  */
-import { useState, useRef } from 'react';
+import { useState, useRef, memo } from 'react';
 import { TodoItem } from '@/types/note';
 import { useTranslation } from 'react-i18next';
 import { Play, Pause, Repeat, Check, Trash2 as TrashIcon, Plus as PlusIcon, ArrowUpCircle, Pin, FolderIcon, ChevronRight, ChevronDown, Tag, Calendar as CalendarIcon2 } from 'lucide-react';
