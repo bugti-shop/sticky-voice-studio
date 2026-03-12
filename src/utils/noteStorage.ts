@@ -1,4 +1,5 @@
 import { Note } from '@/types/note';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 
 const DB_NAME = 'nota-notes-db';
 const DB_VERSION = 1;
