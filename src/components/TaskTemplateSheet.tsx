@@ -237,9 +237,7 @@ export const TaskTemplateSheet = ({ isOpen, onClose, onSelectTemplate }: TaskTem
     }
 
     setCustomTemplates(updatedTemplates);
-    import('@/utils/settingsStorage').then(({ setSetting }) => {
-      setSetting('customTaskTemplates', updatedTemplates);
-    });
+    setSetting('customTaskTemplates', updatedTemplates);
     setShowCreateDialog(false);
   };
 
