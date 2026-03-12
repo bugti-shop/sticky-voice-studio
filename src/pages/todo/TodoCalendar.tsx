@@ -324,7 +324,6 @@ const TodoCalendar = () => {
   };
 
   const handleSaveEvent = async (eventData: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const { setSetting } = await import('@/utils/settingsStorage');
     if (editingEvent) {
       const updatedEvent: CalendarEvent = { ...editingEvent, ...eventData, updatedAt: new Date() };
       const updatedEvents = events.map(e => e.id === editingEvent.id ? updatedEvent : e);
