@@ -58,6 +58,40 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime"],
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split heavy vendor libs into separate cacheable chunks
+          'vendor-mapbox': ['mapbox-gl'],
+          'vendor-recharts': ['recharts'],
+          'vendor-dnd': ['@hello-pangea/dnd'],
+          'vendor-radix': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-alert-dialog',
+            '@radix-ui/react-checkbox',
+            '@radix-ui/react-collapsible',
+            '@radix-ui/react-scroll-area',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-toggle',
+            '@radix-ui/react-toggle-group',
+            '@radix-ui/react-slider',
+            '@radix-ui/react-progress',
+            '@radix-ui/react-radio-group',
+          ],
+          'vendor-i18n': ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
+          'vendor-date': ['date-fns'],
+          'vendor-motion': ['framer-motion'],
+        },
+      },
+    },
+  },
   optimizeDeps: {
     include: ["react", "react-dom", "react/jsx-runtime", "@tanstack/react-query"],
   },
