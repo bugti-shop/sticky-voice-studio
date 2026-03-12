@@ -13,8 +13,8 @@ import {
   VirtualJourneyData,
 } from '@/utils/virtualJourneyStorage';
 import { format, differenceInDays } from 'date-fns';
-import Confetti from 'react-confetti';
-import { playAchievementSound } from '@/utils/gamificationSounds';
+import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
+import { lazyHtml2canvas } from '@/utils/lazyHtml2canvas';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { shareImageBlob } from '@/utils/shareImage';
 import html2canvas from 'html2canvas';
