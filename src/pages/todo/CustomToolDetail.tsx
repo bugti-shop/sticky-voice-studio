@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { TodoItem, Folder } from '@/types/note';
 import { useSubscription, FREE_LIMITS } from '@/contexts/SubscriptionContext';
 import { loadTasksFromDB, saveTasksToDB, updateTaskInDB, deleteTaskFromDB } from '@/utils/taskStorage';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { TodoLayout } from './TodoLayout';
 import { TaskDateTimePage } from '@/components/TaskDateTimePage';
 import { TaskInputSheet } from '@/components/TaskInputSheet';
