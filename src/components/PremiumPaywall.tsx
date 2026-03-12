@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { X, Crown, Unlock, Bell, Loader2, MapPin, Check } from 'lucide-react';
 import { useSubscription, ProductType } from '@/contexts/SubscriptionContext';
 import { Capacitor } from '@capacitor/core';
+import { Purchases } from '@revenuecat/purchases-capacitor';
 import { triggerHaptic } from '@/utils/haptics';
 import { useHardwareBackButton } from '@/hooks/useHardwareBackButton';
 import { setSetting } from '@/utils/settingsStorage';
