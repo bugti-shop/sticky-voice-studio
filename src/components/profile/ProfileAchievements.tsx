@@ -236,19 +236,15 @@ export const ProfileAchievements = ({ onViewCertificate }: { onViewCertificate?:
                       : "bg-gradient-to-r from-warning to-warning/70"
                   )}
                 />
-                />
+              </div>
+              {cert.unlocked && (
+                <div className="mt-1 relative z-10">
+                  <Eye className="h-3.5 w-3.5 text-primary mx-auto" />
+                </div>
               )}
-            </div>
-            {cert.unlocked && (
-              <button
-                onClick={onViewCertificate}
-                className="shrink-0 p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors relative z-10"
-              >
-                <Eye className="h-4 w-4" />
-              </button>
-            )}
-          </motion.div>
-        ))}
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       {/* Badge Detail Modal */}
