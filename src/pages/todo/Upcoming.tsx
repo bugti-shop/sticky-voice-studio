@@ -345,15 +345,15 @@ const Upcoming = () => {
       const smartFilter = getSmartListFilter(smartList);
       filtered = filtered.filter(smartFilter);
     }
-    if (priorityFilter !== 'all') filtered = filtered.filter(item => item.priority === priorityFilter);
-    if (statusFilter !== 'all') {
-      if (statusFilter === 'completed') filtered = filtered.filter(item => item.completed);
+    if (deferredPriorityFilter !== 'all') filtered = filtered.filter(item => item.priority === deferredPriorityFilter);
+    if (deferredStatusFilter !== 'all') {
+      if (deferredStatusFilter === 'completed') filtered = filtered.filter(item => item.completed);
       else filtered = filtered.filter(item => !item.completed);
     }
     if (selectedFolderId) filtered = filtered.filter(item => item.folderId === selectedFolderId);
     if (!showCompleted) filtered = filtered.filter(item => !item.completed);
     return filtered;
-  }, [workerGroups, worker.isAvailable, items, smartList, priorityFilter, statusFilter, selectedFolderId, showCompleted]);
+  }, [workerGroups, worker.isAvailable, items, smartList, deferredPriorityFilter, deferredStatusFilter, selectedFolderId, showCompleted]);
 
   const filteredItems = filteredItemsFallback || [];
 
