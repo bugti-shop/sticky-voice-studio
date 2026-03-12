@@ -71,7 +71,7 @@ const CustomToolDetail = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const { getSetting } = await import('@/utils/settingsStorage');
+      
       
       // Load custom tool
       const savedTools = await getSetting<CustomTool[]>('customProductivityTools', []);
