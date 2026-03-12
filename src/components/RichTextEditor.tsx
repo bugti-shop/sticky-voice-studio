@@ -1578,8 +1578,26 @@ export const RichTextEditor = ({
     }
   };
 
-  // Re-attach event listeners to table wrappers for resizing
+  // Re-attach event listeners — delegated to extracted module
   const reattachTableListeners = useCallback(() => {
+    if (!editorRef.current) return;
+    reattachTableListenersOnElement(editorRef.current, handleInput);
+  }, [handleInput]);
+
+  const reattachImageListeners = useCallback(() => {
+    if (!editorRef.current) return;
+    reattachImageListenersOnElement(editorRef.current, handleInput, t);
+  }, [handleInput, t]);
+
+  const reattachAudioListeners = useCallback(() => {
+    if (!editorRef.current) return;
+    reattachAudioListenersOnElement(editorRef.current);
+  }, []);
+
+  const reattachFileListeners = useCallback(() => {
+    if (!editorRef.current) return;
+    reattachFileListenersOnElement(editorRef.current, t);
+  }, [t]);
     if (!editorRef.current) return;
     
     const wrappers = editorRef.current.querySelectorAll('.resizable-table-wrapper');
