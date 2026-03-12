@@ -277,7 +277,7 @@ const CustomToolDetail = () => {
       requireFeature('extra_folders');
       return;
     }
-    const { setSetting } = await import('@/utils/settingsStorage');
+    
     const newFolder: Folder = {
       id: Date.now().toString(),
       name,
