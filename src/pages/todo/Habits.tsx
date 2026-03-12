@@ -13,7 +13,7 @@ import { Habit, HabitFrequency } from '@/types/habit';
 import { loadHabits, saveHabit, deleteHabit, calculateStreak, getCompletionRate, getWeeklyChartData } from '@/utils/habitStorage';
 
 import { triggerHaptic } from '@/utils/haptics';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
+
 
 const HABIT_COLORS = [
   'hsl(220, 85%, 59%)', // primary blue
