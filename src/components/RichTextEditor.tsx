@@ -1,5 +1,6 @@
 // Build v2.0.0 - Smart Detection for URLs, Emails, and Phone Numbers
 import { useCallback, useRef, useState, useEffect } from 'react';
+import { compressImage, isCompressibleImage } from '@/utils/imageCompression';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
