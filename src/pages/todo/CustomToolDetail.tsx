@@ -249,7 +249,7 @@ const CustomToolDetail = () => {
     window.dispatchEvent(new Event('tasksUpdated'));
     
     // Link task to this tool
-    const { getSetting, setSetting } = await import('@/utils/settingsStorage');
+    
     const savedTools = await getSetting<CustomTool[]>('customProductivityTools', []);
     const updated = savedTools.map((t: CustomTool) => {
       if (t.id === tool.id) {
