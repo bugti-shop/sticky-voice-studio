@@ -37,8 +37,9 @@ import {
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { LocationReminderSheet } from './LocationReminderSheet';
-import { LocationMapPreview } from './LocationMapPreview';
+import { lazy, Suspense } from 'react';
+const LocationReminderSheet = lazy(() => import('./LocationReminderSheet').then(m => ({ default: m.LocationReminderSheet ?? m.default })));
+const LocationMapPreview = lazy(() => import('./LocationMapPreview').then(m => ({ default: m.LocationMapPreview ?? m.default })));
 import { TaskInputSheet } from './TaskInputSheet';
 import { TaskDateTimePage, RepeatSettings } from './TaskDateTimePage';
 import { TaskTimeTracker } from './TaskTimeTracker';
