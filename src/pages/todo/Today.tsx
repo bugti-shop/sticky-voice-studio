@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback, useMemo, startTransition, useDeferredValue } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TodoItem, Priority, TaskSection, TaskStatus } from '@/types/note';
-import { Play, Pause, Repeat, Check, Trash2 as TrashIcon, Edit, Plus as PlusIcon, ArrowUpCircle, ArrowDownCircle, Move, History, TrendingUp, Flag, MapPin, ChevronsUpDown, Pin } from 'lucide-react';
-import { Plus, FolderIcon, ChevronRight, ChevronDown, MoreVertical, Eye, EyeOff, Filter, Copy, MousePointer2, Settings, LayoutList, LayoutGrid, Trash2, ListPlus, Tag, ArrowUpDown, Sun, Columns3, GitBranch, X, Search, ListChecks, Star, Crown } from 'lucide-react';
+import { Play, Pause, Repeat, Check, Trash2 as TrashIcon, Edit, Plus as PlusIcon, ArrowUpCircle, ArrowDownCircle, Move, History, TrendingUp, Flag, MapPin, Pin } from 'lucide-react';
+import { Plus, FolderIcon, ChevronRight, ChevronDown, MoreVertical, Copy, LayoutList, Trash2, Tag, Columns3, GitBranch, ListChecks, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
