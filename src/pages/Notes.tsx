@@ -516,7 +516,7 @@ const Notes = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-card z-50" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenuItem onClick={() => {
-                          exportNoteToDocx(note);
+                           import('@/utils/exportToDocx').then(({ exportNoteToDocx }) => exportNoteToDocx(note));
                           toast.success(t('notes.exportedToWord'));
                         }}>
                           <Download className="h-4 w-4 mr-2" />
