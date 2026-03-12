@@ -855,7 +855,7 @@ const Index = () => {
       </header>
 
       <main className="container mx-auto px-2 xs:px-3 sm:px-4 py-2 xs:py-3">
-        <PersonalizedTips />
+        
 
         {/* Upcoming Reminders Section - hidden from home UI, functionality preserved */}
 
