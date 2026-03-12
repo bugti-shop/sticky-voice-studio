@@ -14,9 +14,8 @@ const ACCESS_TOKEN_TTL = 3500 * 1000; // ~58 min (Google tokens last 1hr)
 const NATIVE_LOGIN_OPTIONS = {
   scopes: NATIVE_SCOPES,
   forceRefreshToken: true,
-  style: 'bottom' as const,
-  filterByAuthorizedAccounts: true,
-  autoSelectEnabled: true,
+  filterByAuthorizedAccounts: false,
+  autoSelectEnabled: false,
 };
 
 export interface GoogleUser {
