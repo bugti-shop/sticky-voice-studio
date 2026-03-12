@@ -610,188 +610,36 @@ const Today = () => {
           {processedItems.length === 0 ? (
             <div className="text-center py-20"><p className="text-muted-foreground">{t('emptyStates.noTasks')}</p></div>
           ) : viewMode === 'kanban' ? (
-            <DragDropContext onDragEnd={(result: DropResult) => {
-              if (!result.destination) return;
-              const { source, destination, draggableId } = result;
-              const taskId = draggableId;
-              const sourceSectionId = source.droppableId;
-              const destSectionId = destination.droppableId;
-              if (sourceSectionId === destSectionId && source.index === destination.index) return;
-              setItems(prevItems => {
-                const taskToMove = prevItems.find(item => item.id === taskId);
-                if (!taskToMove) return prevItems;
-                const uncompletedList = prevItems.filter(item => !item.completed);
-                const completedList = prevItems.filter(item => item.completed);
-                const sourceTasks = uncompletedList.filter(item => item.sectionId === sourceSectionId || (!item.sectionId && sourceSectionId === sections[0]?.id));
-                const destTasksRaw = uncompletedList.filter(item => item.id !== taskId && (item.sectionId === destSectionId || (!item.sectionId && destSectionId === sections[0]?.id)));
-                const currentlyOrderedDestTasks = applyTaskOrder(destTasksRaw, `kanban-${destSectionId}`);
-                const currentDestOrderIds = currentlyOrderedDestTasks.map(t => t.id);
-                currentDestOrderIds.splice(destination.index, 0, taskId);
-                updateSectionOrder(`kanban-${destSectionId}`, currentDestOrderIds);
-                const destTasks = [...currentlyOrderedDestTasks];
-                const updatedTask = { ...taskToMove, sectionId: destSectionId };
-                destTasks.splice(destination.index, 0, updatedTask);
-                if (sourceSectionId !== destSectionId) {
-                  const currentlyOrderedSourceTasks = applyTaskOrder(sourceTasks, `kanban-${sourceSectionId}`);
-                  const sourceOrderIds = currentlyOrderedSourceTasks.map(t => t.id).filter(id => id !== taskId);
-                  updateSectionOrder(`kanban-${sourceSectionId}`, sourceOrderIds);
-                }
-                const otherTasks = uncompletedList.filter(item => item.id !== taskId && item.sectionId !== destSectionId && (item.sectionId || destSectionId !== sections[0]?.id));
-                return [...otherTasks, ...destTasks, ...completedList];
-              });
-              setOrderVersion(v => v + 1);
-              Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-              toast.success('Task moved');
-            }}>
-              <div className="overflow-x-auto pb-4 -mx-4 px-4">
-                <div className="flex gap-4" style={{ minWidth: 'max-content' }}>
-                  {sortedSections.map((section) => {
-                    const rawSectionTasks = uncompletedItems.filter(item => item.sectionId === section.id || (!item.sectionId && section.id === sections[0]?.id));
-                    const sectionTasks = applyTaskOrder(rawSectionTasks, `kanban-${section.id}`);
-                    const kanbanSectionId = `kanban-${section.id}`;
-                    const isCollapsed = collapsedViewSections.has(kanbanSectionId);
-                    return (
-                      <div key={section.id} className="flex-shrink-0 w-72 bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                        <button onClick={() => toggleViewSectionCollapse(kanbanSectionId)} className="w-full flex items-center gap-2 px-3 py-3 border-b border-border/30 hover:bg-muted/20 transition-colors" style={{ borderLeft: `4px solid ${section.color}` }}>
-                          <Columns3 className="h-3.5 w-3.5" style={{ color: section.color }} />
-                          <span className="text-sm font-semibold flex-1 text-left">{section.name}</span>
-                          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{sectionTasks.length}</span>
-                          {isCollapsed ? <ChevronRight className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                              <div className="p-1 hover:bg-muted/50 rounded transition-colors"><MoreVertical className="h-4 w-4 text-muted-foreground" /></div>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 bg-popover border shadow-lg z-50">
-                              <DropdownMenuItem onClick={() => handleEditSection(section)} className="cursor-pointer"><Edit className="h-4 w-4 mr-2" />{t('sections.editSection')}</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleAddTaskToSection(section.id)} className="cursor-pointer"><PlusIcon className="h-4 w-4 mr-2" />{t('sections.addTask')}</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => handleDuplicateSection(section.id)} className="cursor-pointer"><Copy className="h-4 w-4 mr-2" />{t('common.duplicate')}</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleDeleteSection(section.id)} className="cursor-pointer text-destructive focus:text-destructive" disabled={sections.length <= 1}><Trash2 className="h-4 w-4 mr-2" />{t('common.delete')}</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </button>
-                        {!isCollapsed && (
-                          <>
-                            <Droppable droppableId={section.id}>
-                              {(provided, snapshot) => (
-                                <div ref={provided.innerRef} {...provided.droppableProps} className={cn("min-h-[300px] max-h-[400px] overflow-y-auto p-2 space-y-2", snapshot.isDraggingOver && "bg-primary/5")}>
-                                  {sectionTasks.length === 0 ? (
-                                    <div className="py-8 text-center text-sm text-muted-foreground">{t('sections.dropTasksHere')}</div>
-                                  ) : sectionTasks.map((item, index) => (
-                                    <Draggable key={item.id} draggableId={item.id} index={index}>
-                                      {(provided, snapshot) => (
-                                        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={cn("bg-card rounded-lg border border-border/50 shadow-sm", snapshot.isDragging && "shadow-lg ring-2 ring-primary")}>
-                                          {renderTaskItem(item)}
-                                          {renderSubtasksInline(item)}
-                                        </div>
-                                      )}
-                                    </Draggable>
-                                  ))}
-                                  {provided.placeholder}
-                                </div>
-                              )}
-                            </Droppable>
-                            <div className="p-2 border-t border-border/30">
-                              <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground" onClick={() => handleAddTaskToSection(section.id)}>
-                                <PlusIcon className="h-4 w-4 mr-2" />{t('sections.addTask')}
-                              </Button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {showCompleted && completedItems.length > 0 && (
-                    <div className="flex-shrink-0 w-72 bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                      <button onClick={() => toggleViewSectionCollapse('kanban-completed')} className="w-full flex items-center gap-2 px-3 py-3 border-b border-border/30 hover:bg-muted/20 transition-colors" style={{ borderLeft: `4px solid #10b981` }}>
-                        <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                        <span className="text-sm font-semibold flex-1 text-left text-muted-foreground uppercase tracking-wide">Completed</span>
-                        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{completedItems.length}</span>
-                        {collapsedViewSections.has('kanban-completed') ? <ChevronRight className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-                      </button>
-                      {!collapsedViewSections.has('kanban-completed') && (
-                        <div className="min-h-[100px] max-h-[400px] overflow-y-auto p-2 space-y-2">
-                          {completedItems.map((item) => (
-                            <div key={item.id} className="bg-card rounded-lg border border-border/50 shadow-sm opacity-70">{renderTaskItem(item)}</div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  <div className="flex-shrink-0 w-72">
-                    <Button variant="outline" className="w-full h-12 border-dashed" onClick={() => handleAddSection('below')}>
-                      <PlusIcon className="h-4 w-4 mr-2" />Add Section
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </DragDropContext>
+            <KanbanView
+              sortedSections={sortedSections}
+              sections={sections}
+              uncompletedItems={uncompletedItems}
+              completedItems={completedItems}
+              showCompleted={showCompleted}
+              collapsedViewSections={collapsedViewSections}
+              toggleViewSectionCollapse={toggleViewSectionCollapse}
+              renderTaskItem={renderTaskItem}
+              renderSubtasksInline={renderSubtasksInline}
+              setItems={setItems}
+              setOrderVersion={setOrderVersion}
+              handleEditSection={handleEditSection}
+              handleAddTaskToSection={handleAddTaskToSection}
+              handleDuplicateSection={handleDuplicateSection}
+              handleDeleteSection={handleDeleteSection}
+              handleAddSection={handleAddSection}
+            />
           ) : viewMode === 'kanban-status' ? (
-            <DragDropContext onDragEnd={(result) => {
-              if (!result.destination) return;
-              const { source, destination, draggableId } = result;
-              const taskId = draggableId;
-              const sourceStatus = source.droppableId.replace('status-', '') as TaskStatus;
-              const destStatus = destination.droppableId.replace('status-', '') as TaskStatus;
-              if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-              if (sourceStatus !== destStatus) {
-                updateItem(taskId, { status: destStatus, completed: destStatus === 'completed', completedAt: destStatus === 'completed' ? new Date() : undefined });
-                Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-                toast.success(`Task status updated to ${destStatus.replace('_', ' ')}`);
-              }
-              const destGroupId = destination.droppableId;
-              const destTasks = items.filter(item => { const s = item.status || 'not_started'; return destGroupId === `status-${s}` || (destGroupId === 'status-completed' && item.completed); });
-              const ordered = applyTaskOrder(destTasks, destGroupId);
-              const ids = ordered.map(t => t.id);
-              const idx = ids.indexOf(taskId);
-              if (idx !== -1) ids.splice(idx, 1);
-              ids.splice(destination.index, 0, taskId);
-              updateSectionOrder(destGroupId, ids);
-              setOrderVersion(v => v + 1);
-            }}>
-              <div className="overflow-x-auto pb-4 -mx-4 px-4">
-                <div className="flex gap-4" style={{ minWidth: 'max-content' }}>
-                  {[
-                    { id: 'not_started' as TaskStatus, label: t('grouping.notStarted'), color: '#6b7280', icon: <Circle className="h-3.5 w-3.5" />, tasks: uncompletedItems.filter(item => !item.status || item.status === 'not_started') },
-                    { id: 'in_progress' as TaskStatus, label: t('grouping.inProgress'), color: '#3b82f6', icon: <Loader2 className="h-3.5 w-3.5" />, tasks: uncompletedItems.filter(item => item.status === 'in_progress') },
-                    { id: 'almost_done' as TaskStatus, label: t('grouping.almostDone'), color: '#f59e0b', icon: <ClockIcon className="h-3.5 w-3.5" />, tasks: uncompletedItems.filter(item => item.status === 'almost_done') },
-                    { id: 'completed' as TaskStatus, label: t('grouping.completed'), color: '#10b981', icon: <CheckCircle2 className="h-3.5 w-3.5" />, tasks: completedItems },
-                  ].map((group) => {
-                    const statusSectionId = `status-${group.id}`;
-                    const isCollapsed = collapsedViewSections.has(statusSectionId);
-                    const orderedTasks = applyTaskOrder(group.tasks, statusSectionId);
-                    return (
-                      <div key={group.id} className="flex-shrink-0 w-72 bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                        <button onClick={() => toggleViewSectionCollapse(statusSectionId)} className="w-full flex items-center gap-2 px-3 py-3 border-b border-border/30 hover:bg-muted/20 transition-colors" style={{ borderLeft: `4px solid ${group.color}` }}>
-                          <span style={{ color: group.color }}>{group.icon}</span>
-                          <span className="text-sm font-semibold flex-1 text-left">{group.label}</span>
-                          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{group.tasks.length}</span>
-                          {isCollapsed ? <ChevronRight className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-                        </button>
-                        {!isCollapsed && (
-                          <Droppable droppableId={statusSectionId}>
-                            {(provided, snapshot) => (
-                              <div ref={provided.innerRef} {...provided.droppableProps} className={cn("min-h-[200px] max-h-[400px] overflow-y-auto p-2 space-y-2", snapshot.isDraggingOver && "bg-primary/5")}>
-                                {orderedTasks.length === 0 ? <div className="py-8 text-center text-sm text-muted-foreground">Drop tasks here</div> : orderedTasks.map((item, index) => (
-                                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                                    {(provided, snapshot) => (
-                                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={cn("bg-card rounded-lg border border-border/50 shadow-sm overflow-hidden", snapshot.isDragging && "shadow-lg ring-2 ring-primary", group.id === 'completed' && "opacity-70")}>
-                                        {renderTaskItem(item)}{renderSubtasksInline(item)}
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {provided.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </DragDropContext>
+            <KanbanStatusView
+              items={items}
+              uncompletedItems={uncompletedItems}
+              completedItems={completedItems}
+              collapsedViewSections={collapsedViewSections}
+              toggleViewSectionCollapse={toggleViewSectionCollapse}
+              renderTaskItem={renderTaskItem}
+              renderSubtasksInline={renderSubtasksInline}
+              updateItem={updateItem}
+              setOrderVersion={setOrderVersion}
+            />
           ) : viewMode === 'timeline' ? (
             <TimelineView
               uncompletedItems={uncompletedItems}
@@ -850,185 +698,42 @@ const Today = () => {
               renderTaskItem={renderTaskItem}
             />
           ) : groupByOption !== 'none' ? (
-            <DragDropContext onDragEnd={(result) => {
-              if (!result.destination) return;
-              const { source, destination, draggableId } = result;
-              const taskId = draggableId;
-              const sourceGroup = source.droppableId.replace('grouped-', '');
-              const destGroup = destination.droppableId.replace('grouped-', '');
-              if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-              if (sourceGroup !== destGroup) {
-                if (groupByOption === 'priority') {
-                  const priorityMap: Record<string, Priority> = { 'high': 'high', 'medium': 'medium', 'low': 'low', 'none': 'none' };
-                  updateItem(taskId, { priority: priorityMap[destGroup] || 'none' });
-                  toast.success(t('todayPage.priorityUpdated'));
-                } else if (groupByOption === 'section') {
-                  updateItem(taskId, { sectionId: destGroup });
-                  toast.success(t('todayPage.sectionMoved'));
-                } else if (groupByOption === 'date') {
-                  const today = new Date();
-                  let newDate: Date | undefined;
-                  if (destGroup === 'overdue') newDate = subDays(today, 1);
-                  else if (destGroup === 'today') newDate = today;
-                  else if (destGroup === 'tomorrow') { newDate = new Date(); newDate.setDate(newDate.getDate() + 1); }
-                  else if (destGroup === 'this-week') { newDate = new Date(); newDate.setDate(newDate.getDate() + 3); }
-                  else if (destGroup === 'later') { newDate = new Date(); newDate.setDate(newDate.getDate() + 14); }
-                  else if (destGroup === 'no-date') newDate = undefined;
-                  updateItem(taskId, { dueDate: newDate });
-                  toast.success(t('todayPage.dateUpdated', 'Date updated'));
-                }
-                Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-              }
-              updateSectionOrder(`grouped-${destGroup}`, [taskId]);
-              setOrderVersion(v => v + 1);
-            }}>
-              <div className="space-y-4">
-                {(() => {
-                  let groups: { id: string; label: string; color: string; icon: React.ReactNode; tasks: TodoItem[] }[] = [];
-                  if (groupByOption === 'section') {
-                    groups = sortedSections.map(section => ({ id: section.id, label: section.name, color: section.color, icon: <Columns3 className="h-4 w-4" style={{ color: section.color }} />, tasks: uncompletedItems.filter(item => item.sectionId === section.id || (!item.sectionId && section.id === sections[0]?.id)) }));
-                  } else if (groupByOption === 'priority') {
-                    groups = [
-                      { id: 'high', label: t('grouping.highPriority'), color: getPriorityColor('high'), icon: <Flame className="h-4 w-4" style={{ color: getPriorityColor('high') }} />, tasks: uncompletedItems.filter(i => i.priority === 'high') },
-                      { id: 'medium', label: t('grouping.mediumPriority'), color: getPriorityColor('medium'), icon: <Flag className="h-4 w-4" style={{ color: getPriorityColor('medium') }} />, tasks: uncompletedItems.filter(i => i.priority === 'medium') },
-                      { id: 'low', label: t('grouping.lowPriority'), color: getPriorityColor('low'), icon: <Flag className="h-4 w-4" style={{ color: getPriorityColor('low') }} />, tasks: uncompletedItems.filter(i => i.priority === 'low') },
-                      { id: 'none', label: t('grouping.noPriority'), color: getPriorityColor('none'), icon: <Flag className="h-4 w-4" style={{ color: getPriorityColor('none') }} />, tasks: uncompletedItems.filter(i => !i.priority || i.priority === 'none') },
-                    ];
-                  } else if (groupByOption === 'date') {
-                    const today = startOfDay(new Date());
-                    groups = [
-                      { id: 'overdue', label: t('grouping.overdue'), color: '#ef4444', icon: <AlertCircle className="h-4 w-4 text-destructive" />, tasks: uncompletedItems.filter(i => i.dueDate && isBefore(new Date(i.dueDate), today)) },
-                      { id: 'today', label: t('grouping.today'), color: '#3b82f6', icon: <Sun className="h-4 w-4 text-info" />, tasks: uncompletedItems.filter(i => i.dueDate && isToday(new Date(i.dueDate))) },
-                      { id: 'tomorrow', label: t('grouping.tomorrow'), color: '#f59e0b', icon: <CalendarIcon2 className="h-4 w-4 text-warning" />, tasks: uncompletedItems.filter(i => i.dueDate && isTomorrow(new Date(i.dueDate))) },
-                      { id: 'this-week', label: t('grouping.thisWeek'), color: '#10b981', icon: <CalendarIcon2 className="h-4 w-4 text-success" />, tasks: uncompletedItems.filter(i => i.dueDate && isThisWeek(new Date(i.dueDate)) && !isToday(new Date(i.dueDate)) && !isTomorrow(new Date(i.dueDate))) },
-                      { id: 'later', label: t('grouping.later'), color: '#8b5cf6', icon: <Clock className="h-4 w-4 text-accent-purple" />, tasks: uncompletedItems.filter(i => i.dueDate && !isBefore(new Date(i.dueDate), today) && !isThisWeek(new Date(i.dueDate))) },
-                      { id: 'no-date', label: t('grouping.noDate'), color: '#6b7280', icon: <CalendarX className="h-4 w-4 text-muted-foreground" />, tasks: uncompletedItems.filter(i => !i.dueDate) },
-                    ];
-                  }
-                  return groups.map(group => {
-                    const groupSectionId = `group-${groupByOption}-${group.id}`;
-                    const isCollapsed = collapsedViewSections.has(groupSectionId);
-                    const orderedTasks = applyTaskOrder(group.tasks, `grouped-${group.id}`);
-                    return (
-                      <div key={group.id} className="bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                        <button onClick={() => toggleViewSectionCollapse(groupSectionId)} className="w-full flex items-center gap-2 px-3 py-3 border-b border-border/30 hover:bg-muted/20 transition-colors" style={{ borderLeft: `4px solid ${group.color}` }}>
-                          {group.icon}
-                          <span className="text-sm font-semibold flex-1 text-left">{group.label}</span>
-                          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{group.tasks.length}</span>
-                          {isCollapsed ? <ChevronRight className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-                        </button>
-                        {!isCollapsed && (
-                          <Droppable droppableId={`grouped-${group.id}`}>
-                            {(provided, snapshot) => (
-                              <div ref={provided.innerRef} {...provided.droppableProps} className={cn("p-2 space-y-1 min-h-[40px]", compactMode && "p-1 space-y-0", snapshot.isDraggingOver && "bg-primary/5")}>
-                                {orderedTasks.length === 0 ? <div className="py-4 text-center text-sm text-muted-foreground">{t('todayPage.dropTasksHere')}</div> : orderedTasks.map((item, index) => (
-                                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                                    {(provided, snapshot) => (
-                                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={cn("bg-card rounded-lg border border-border/50", snapshot.isDragging && "shadow-lg ring-2 ring-primary")}>
-                                        {renderTaskItem(item)}{renderSubtasksInline(item)}
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {provided.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
-                        )}
-                      </div>
-                    );
-                  });
-                })()}
-                {showCompleted && completedItems.length > 0 && (
-                  <Collapsible open={isCompletedOpen} onOpenChange={setIsCompletedOpen}>
-                    <div className="bg-muted/50 rounded-xl p-3 border border-border/30">
-                      <CollapsibleTrigger asChild>
-                        <button className="w-full flex items-center justify-between px-2 py-2 hover:bg-muted/60 rounded-lg transition-colors">
-                          <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{t('grouping.completed')}</span>
-                          <div className="flex items-center gap-2 text-muted-foreground"><span className="text-sm font-medium">{completedItems.length}</span>{isCompletedOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</div>
-                        </button>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className={cn("space-y-2 mt-2", compactMode && "space-y-1 mt-1")}>{completedItems.map(renderTaskItem)}</CollapsibleContent>
-                    </div>
-                  </Collapsible>
-                )}
-              </div>
-            </DragDropContext>
+            <GroupedView
+              groupByOption={groupByOption}
+              sortedSections={sortedSections}
+              sections={sections}
+              uncompletedItems={uncompletedItems}
+              completedItems={completedItems}
+              showCompleted={showCompleted}
+              isCompletedOpen={isCompletedOpen}
+              setIsCompletedOpen={setIsCompletedOpen}
+              compactMode={compactMode}
+              collapsedViewSections={collapsedViewSections}
+              toggleViewSectionCollapse={toggleViewSectionCollapse}
+              renderTaskItem={renderTaskItem}
+              renderSubtasksInline={renderSubtasksInline}
+              updateItem={updateItem}
+              getPriorityColor={getPriorityColor}
+              setOrderVersion={setOrderVersion}
+            />
           ) : (
-            /* Default Flat Mode with Sections + Drag & Drop */
-            <DragDropContext onDragEnd={(result) => {
-              if (!result.destination) return;
-              const { source, destination, draggableId, type } = result;
-              if (type === 'SECTION') { handleSectionDragEnd(result); return; }
-              const taskId = draggableId;
-              const sourceSectionId = source.droppableId.replace('flat-section-', '');
-              const destSectionId = destination.droppableId.replace('flat-section-', '');
-              const destIndex = destination.index;
-              if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-              if (sourceSectionId !== destSectionId) {
-                const actualDestSectionId = destSectionId === 'default' ? sections[0]?.id : destSectionId;
-                updateItem(taskId, { sectionId: actualDestSectionId });
-              }
-              const destSectionTasks = uncompletedItems.filter(item => {
-                const actualDestId = destSectionId === 'default' ? sections[0]?.id : destSectionId;
-                return item.sectionId === actualDestId || (!item.sectionId && actualDestId === sections[0]?.id);
-              });
-              const currentlyOrderedTasks = applyTaskOrder(destSectionTasks, `flat-section-${destSectionId}`);
-              const currentOrderIds = currentlyOrderedTasks.map(t => t.id);
-              const taskCurrentIndex = currentOrderIds.indexOf(taskId);
-              if (taskCurrentIndex !== -1) currentOrderIds.splice(taskCurrentIndex, 1);
-              currentOrderIds.splice(destIndex, 0, taskId);
-              updateSectionOrder(`flat-section-${destSectionId}`, currentOrderIds);
-              setOrderVersion(v => v + 1);
-              Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
-            }}>
-              <div className="space-y-4">
-                {sortedSections.map((section) => {
-                  const sectionTasks = uncompletedItems.filter(item => item.sectionId === section.id || (!item.sectionId && section.id === sections[0]?.id));
-                  const sectionId = section.id === sections[0]?.id ? 'default' : section.id;
-                  const isCollapsed = collapsedViewSections.has(`flat-${section.id}`);
-                  const orderedTasks = applyTaskOrder(sectionTasks, `flat-section-${sectionId}`);
-                  return (
-                    <div key={section.id} className="bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                      {renderSectionHeader(section, false)}
-                      {!isCollapsed && (
-                        <Droppable droppableId={`flat-section-${sectionId}`}>
-                          {(provided, snapshot) => (
-                            <div ref={provided.innerRef} {...provided.droppableProps} className={cn("p-2 space-y-1 min-h-[40px]", compactMode && "p-1 space-y-0", snapshot.isDraggingOver && "bg-primary/5")}>
-                              {orderedTasks.length === 0 ? (
-                                <div className={cn("text-center text-sm text-muted-foreground", compactMode ? "py-2 px-2" : "py-4 px-4")}>{t('emptyStates.noTasksInSection')}</div>
-                              ) : orderedTasks.map((item, index) => (
-                                <Draggable key={item.id} draggableId={item.id} index={index}>
-                                  {(provided, snapshot) => (
-                                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={cn("bg-card rounded-lg border border-border/50", snapshot.isDragging && "shadow-lg ring-2 ring-primary")}>
-                                      {renderTaskItem(item)}{renderSubtasksInline(item)}
-                                    </div>
-                                  )}
-                                </Draggable>
-                              ))}
-                              {provided.placeholder}
-                            </div>
-                          )}
-                        </Droppable>
-                      )}
-                    </div>
-                  );
-                })}
-                {showCompleted && completedItems.length > 0 && (
-                  <Collapsible open={isCompletedOpen} onOpenChange={setIsCompletedOpen}>
-                    <div className="bg-muted/50 rounded-xl p-3 border border-border/30">
-                      <CollapsibleTrigger asChild>
-                        <button className="w-full flex items-center justify-between px-2 py-2 hover:bg-muted/60 rounded-lg transition-colors">
-                          <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{t('grouping.completed')}</span>
-                          <div className="flex items-center gap-2 text-muted-foreground"><span className="text-sm font-medium">{completedItems.length}</span>{isCompletedOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</div>
-                        </button>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className={cn("space-y-2 mt-2", compactMode && "space-y-1 mt-1")}>{completedItems.map(renderTaskItem)}</CollapsibleContent>
-                    </div>
-                  </Collapsible>
-                )}
-              </div>
-            </DragDropContext>
+            <FlatView
+              sortedSections={sortedSections}
+              sections={sections}
+              uncompletedItems={uncompletedItems}
+              completedItems={completedItems}
+              showCompleted={showCompleted}
+              isCompletedOpen={isCompletedOpen}
+              setIsCompletedOpen={setIsCompletedOpen}
+              compactMode={compactMode}
+              collapsedViewSections={collapsedViewSections}
+              renderTaskItem={renderTaskItem}
+              renderSubtasksInline={renderSubtasksInline}
+              renderSectionHeader={renderSectionHeader}
+              updateItem={updateItem}
+              handleSectionDragEnd={handleSectionDragEnd}
+              setOrderVersion={setOrderVersion}
+            />
           )}
         </div>
       </main>
