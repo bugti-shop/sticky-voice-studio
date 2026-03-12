@@ -73,8 +73,10 @@ const Notes = () => {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'active' | 'archived' | 'trash'>('active');
   const [searchQuery, setSearchQuery] = useState('');
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const [showTagManager, setShowTagManager] = useState(false);
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
+  const deferredFilterTagIds = useDeferredValue(filterTagIds);
   const [allTags, setAllTags] = useState<import('@/utils/tagStorage').AppTag[]>([]);
 
   // Load tags for filtering
