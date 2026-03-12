@@ -4032,6 +4032,7 @@ export const SketchEditor = memo(({ initialData, onChange, onImageExport, classN
 
     // If no PDF is loaded, export current canvas as single-page PDF
     if (pdfPages.length === 0) {
+      const { jsPDF } = await import('jspdf');
       const { w, h } = canvasSizeRef.current;
       const orientation = w >= h ? 'landscape' : 'portrait';
       const pdf = new jsPDF({ orientation, unit: 'px', format: [w, h] });
