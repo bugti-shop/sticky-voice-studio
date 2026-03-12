@@ -15,7 +15,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { ProfileImageCropper } from '@/components/ProfileImageCropper';
 import { ProfileStatsBanner } from '@/components/profile/ProfileStats';
 import { ProfileAchievements } from '@/components/profile/ProfileAchievements';
-import { ProfileAccountOptions } from '@/components/profile/ProfileAccountOptions';
+
 
 export default function Profile() {
   const { t } = useTranslation();
