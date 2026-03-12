@@ -64,7 +64,6 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor-recharts': ['recharts'],
           'vendor-dnd': ['@hello-pangea/dnd'],
           'vendor-radix': [
             '@radix-ui/react-dialog',
