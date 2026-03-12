@@ -1,5 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { getSetting, setSetting } from '@/utils/settingsStorage';
+import { loadTodoItems } from '@/utils/todoItemsStorage';
+import { loadNotesFromDB } from '@/utils/noteStorage';
+import { loadFolders } from '@/utils/folderStorage';
 import { toast } from '@/hooks/use-toast';
 import { CertificateUnlockToast } from '@/components/CertificateUnlockToast';
 import { Shield, Star, Award, Crown, Gem } from 'lucide-react';
