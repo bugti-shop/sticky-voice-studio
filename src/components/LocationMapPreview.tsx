@@ -115,7 +115,6 @@ export const LocationMapPreview = ({
 
   const handleSaveToken = async () => {
     if (mapboxToken.trim()) {
-      const { setSetting } = await import('@/utils/settingsStorage');
       await setSetting('mapbox_token', mapboxToken.trim());
       setShowTokenInput(false);
       setIsLoading(true);

@@ -172,7 +172,6 @@ const CustomToolDetail = () => {
   const handleUnlinkTask = async (taskId: string) => {
     if (!tool) return;
     
-    const { getSetting, setSetting } = await import('@/utils/settingsStorage');
     const savedTools = await getSetting<CustomTool[]>('customProductivityTools', []);
     const updated = savedTools.map((t: CustomTool) => {
       if (t.id === tool.id) {

@@ -427,7 +427,6 @@ export const NoteEditor = ({ note, isOpen, onClose, onSave, defaultType = 'regul
     setFolders(updatedFolders);
     // Save folders to IndexedDB and dispatch event
     const foldersToSave = updatedFolders.filter(f => !f.isDefault);
-    const { setSetting } = await import('@/utils/settingsStorage');
     await setSetting('folders', foldersToSave);
     // Dispatch event so Index.tsx can pick up the new folder
     window.dispatchEvent(new Event('foldersUpdated'));

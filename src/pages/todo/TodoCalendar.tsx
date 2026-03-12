@@ -364,7 +364,6 @@ const TodoCalendar = () => {
       requireFeature('extra_folders');
       return;
     }
-    const { setSetting } = await import('@/utils/settingsStorage');
     const newFolder: Folder = { id: Date.now().toString(), name, color, isDefault: false, createdAt: new Date() };
     const updatedFolders = [...folders, newFolder];
     setFolders(updatedFolders);

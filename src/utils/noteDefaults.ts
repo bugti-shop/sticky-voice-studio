@@ -10,7 +10,6 @@ export const getDeviceId = async (): Promise<string> => {
   let deviceId = await getSetting<string>('device_id', '');
   if (!deviceId) {
     deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const { setSetting } = await import('@/utils/settingsStorage');
     await setSetting('device_id', deviceId);
   }
   cachedDeviceId = deviceId;

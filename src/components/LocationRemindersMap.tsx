@@ -191,7 +191,6 @@ export const LocationRemindersMap = ({
 
   const handleSaveToken = async () => {
     if (tokenInput.trim()) {
-      const { setSetting } = await import('@/utils/settingsStorage');
       await setSetting('mapbox_token', tokenInput.trim());
       setMapboxToken(tokenInput.trim());
       setShowTokenInput(false);

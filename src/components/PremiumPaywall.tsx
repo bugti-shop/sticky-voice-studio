@@ -89,7 +89,6 @@ export const PremiumPaywall = () => {
   const handleAccessCode = async () => {
     const validCode = 'BUGTI';
     if (adminCode.trim().toUpperCase() === validCode) {
-      const { setSetting } = await import('@/utils/settingsStorage');
       await setSetting('npd_admin_bypass', true);
       await unlockPro();
     } else {

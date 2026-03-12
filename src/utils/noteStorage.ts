@@ -212,7 +212,7 @@ export const deleteNoteFromDB = async (noteId: string): Promise<void> => {
 
 // Migration from localStorage to IndexedDB (one-time)
 export const migrateNotesToIndexedDB = async (): Promise<boolean> => {
-  const { getSetting, setSetting } = await import('@/utils/settingsStorage');
+  
   try {
     const migrated = await getSetting('notes_migrated_to_indexeddb', false);
     if (migrated) return false;

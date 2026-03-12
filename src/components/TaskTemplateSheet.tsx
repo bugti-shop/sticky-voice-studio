@@ -244,9 +244,7 @@ export const TaskTemplateSheet = ({ isOpen, onClose, onSelectTemplate }: TaskTem
   const handleDeleteTemplate = (templateId: string) => {
     const updatedTemplates = customTemplates.filter(t => t.id !== templateId);
     setCustomTemplates(updatedTemplates);
-    import('@/utils/settingsStorage').then(({ setSetting }) => {
-      setSetting('customTaskTemplates', updatedTemplates);
-    });
+    setSetting('customTaskTemplates', updatedTemplates);
   };
 
   const getIcon = (iconName: string) => {

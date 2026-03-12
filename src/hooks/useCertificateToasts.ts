@@ -31,11 +31,10 @@ export const useCertificateToasts = () => {
       checking.current = true;
 
       try {
-        const [{ loadTodoItems }, { loadNotesFromDB }, { loadFolders }, { getSetting, setSetting }] = await Promise.all([
+        const [{ loadTodoItems }, { loadNotesFromDB }, { loadFolders }] = await Promise.all([
           import('@/utils/todoItemsStorage'),
           import('@/utils/noteStorage'),
           import('@/utils/folderStorage'),
-          import('@/utils/settingsStorage'),
         ]);
 
         const [tasks, notes, folders, seenCerts, streakRaw, adminBypass] = await Promise.all([

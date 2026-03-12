@@ -6,7 +6,7 @@ export const DEFAULT_MAPBOX_TOKEN = 'pk.eyJ1IjoiYnVndGlzaG9wIiwiYSI6ImNtbG5weHpz
  */
 export const getMapboxToken = async (): Promise<string> => {
   try {
-    const { getSetting } = await import('@/utils/settingsStorage');
+    const { getSetting } = await import('./settingsStorage');
     const storedToken = await getSetting<string | null>('mapbox_token', null);
     if (storedToken) return storedToken;
   } catch {}
