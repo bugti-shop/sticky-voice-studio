@@ -287,6 +287,19 @@ export default function Profile() {
           onCancel={() => setCropImageSrc(null)}
         />
       )}
+
+      {/* Cover Image Cropper Modal */}
+      {coverCropSrc && (
+        <ProfileImageCropper
+          imageSrc={coverCropSrc}
+          onCropComplete={async (croppedUrl) => {
+            await updateProfile({ coverUrl: croppedUrl });
+            setCoverCropSrc(null);
+            toast({ title: t('profile.coverUpdated', 'Cover photo updated') });
+          }}
+          onCancel={() => setCoverCropSrc(null)}
+        />
+      )}
     </div>
   );
 }
