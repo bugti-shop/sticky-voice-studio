@@ -488,9 +488,7 @@ const Index = () => {
 
     setNotes(prev => [...newNotes, ...prev]);
     // Persist
-    import('@/utils/noteStorage').then(({ saveNotesToDB }) => {
-      saveNotesToDB([...newNotes, ...notes]);
-    });
+    saveNotesToDB([...newNotes, ...notes]);
     
     // Select the new folder
     setSelectedFolderId(folderId);

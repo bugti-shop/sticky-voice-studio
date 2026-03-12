@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useTransition, useDeferredValue } from 'react';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { useTaskWorker } from '@/hooks/useTaskWorker';
 import { recordCompletion, TASK_STREAK_KEY } from '@/utils/streakStorage';
 
@@ -92,7 +93,6 @@ const Upcoming = () => {
   useEffect(() => {
     const loadAll = async () => {
       await loadItems();
-      const { getSetting } = await import('@/utils/settingsStorage');
       const savedFolders = await getSetting<Folder[] | null>('todoFolders', null);
       if (savedFolders) {
         setFolders(savedFolders.map((f: Folder) => ({ ...f, createdAt: new Date(f.createdAt) })));
@@ -126,7 +126,7 @@ const Upcoming = () => {
       requireFeature('extra_folders');
       return;
     }
-    const { setSetting } = await import('@/utils/settingsStorage');
+    
     const newFolder: Folder = { id: Date.now().toString(), name, color, isDefault: false, createdAt: new Date() };
     const updatedFolders = [...folders, newFolder];
     setFolders(updatedFolders);

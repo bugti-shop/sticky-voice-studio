@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { saveTaskMedia, makeTaskMediaRef, deleteTaskMedia, parseTaskMediaRef } from '@/utils/taskMediaStorage';
 import { useTranslation } from 'react-i18next';
 import { TodoItem, Priority, Folder, Note, RepeatType, ColoredTag, TimeTracking, TaskStatus, LocationReminder, TaskAttachment, EscalationTiming } from '@/types/note';
 import { Button } from '@/components/ui/button';
@@ -503,7 +504,7 @@ export const TaskDetailPage = ({
     const files = e.target.files;
     if (!files || files.length === 0 || !task) return;
 
-    const { saveTaskMedia, makeTaskMediaRef } = await import('@/utils/taskMediaStorage');
+    
     const newAttachments: TaskAttachment[] = [];
     
     for (const file of Array.from(files)) {
@@ -536,7 +537,7 @@ export const TaskDetailPage = ({
 
   const handleRemoveAttachment = async (attachmentId: string) => {
     if (!task) return;
-    const { deleteTaskMedia, parseTaskMediaRef } = await import('@/utils/taskMediaStorage');
+    
     const attachment = task.attachments?.find(a => a.id === attachmentId);
     if (attachment) {
       const parsed = parseTaskMediaRef(attachment.ref);
@@ -553,7 +554,7 @@ export const TaskDetailPage = ({
 
 
   const handleOpenAttachment = async (attachment: TaskAttachment) => {
-    const { resolveTaskMediaUrl } = await import('@/utils/taskMediaStorage');
+    
     const dataUrl = await resolveTaskMediaUrl(attachment.ref);
     if (!dataUrl) return;
 

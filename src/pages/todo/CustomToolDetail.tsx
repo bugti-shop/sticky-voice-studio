@@ -209,7 +209,8 @@ const CustomToolDetail = () => {
     window.dispatchEvent(new Event('tasksUpdated'));
     
     // Link task to this tool
-    const { getSetting, setSetting } = await import('@/utils/settingsStorage');
+
+
     const savedTools = await getSetting<CustomTool[]>('customProductivityTools', []);
     const updated = savedTools.map((t: CustomTool) => {
       if (t.id === tool.id) {
@@ -248,7 +249,7 @@ const CustomToolDetail = () => {
     window.dispatchEvent(new Event('tasksUpdated'));
     
     // Link task to this tool
-    const { getSetting, setSetting } = await import('@/utils/settingsStorage');
+    
     const savedTools = await getSetting<CustomTool[]>('customProductivityTools', []);
     const updated = savedTools.map((t: CustomTool) => {
       if (t.id === tool.id) {
@@ -276,7 +277,7 @@ const CustomToolDetail = () => {
       requireFeature('extra_folders');
       return;
     }
-    const { setSetting } = await import('@/utils/settingsStorage');
+    
     const newFolder: Folder = {
       id: Date.now().toString(),
       name,

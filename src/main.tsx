@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
 import { migrateLocalStorageToIndexedDB, getSetting } from "./utils/settingsStorage";
+import { migrateNotesToIndexedDB } from "./utils/noteStorage";
 
 // No loading screen - render nothing during suspense for instant feel
 const EmptyFallback = () => null;
@@ -30,7 +31,6 @@ createRoot(document.getElementById("root")!).render(
 scheduleDeferred(async () => {
   try {
     const [
-      { migrateNotesToIndexedDB },
       { initializeTaskOrder },
       { initializeProtectionSettings },
       { startBackgroundScheduler },
@@ -39,7 +39,6 @@ scheduleDeferred(async () => {
       { initializeSmartNotifications },
       { configureStatusBar },
     ] = await Promise.all([
-      import("./utils/noteStorage"),
       import("./utils/taskOrderStorage"),
       import("./utils/noteProtection"),
       import("./utils/backgroundScheduler"),

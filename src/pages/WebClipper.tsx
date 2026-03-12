@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check, Loader2, ExternalLink } from 'lucide-react';
 import { stripHtml } from '@/lib/sanitize';
+import { loadNotesFromDB, saveNotesToDB } from '@/utils/noteStorage';
 
 // Maximum lengths for URL parameters to prevent DoS/abuse
 const MAX_LENGTHS = {
@@ -110,7 +111,6 @@ const WebClipper = () => {
       };
 
       // Save note to IndexedDB
-      const { loadNotesFromDB, saveNotesToDB } = await import('@/utils/noteStorage');
       const existingNotes = await loadNotesFromDB();
       const updatedNotes = [newNote, ...existingNotes];
       await saveNotesToDB(updatedNotes);

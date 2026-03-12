@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getSetting, setSetting } from '@/utils/settingsStorage';
+import { compressImage, isCompressibleImage } from '@/utils/imageCompression';
 import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTranslation } from 'react-i18next';
@@ -751,7 +752,6 @@ export const NoteEditor = ({ note, isOpen, onClose, onSave, defaultType = 'regul
 
   const handleImageAdd = async (imageUrl: string) => {
     try {
-      const { compressImage, isCompressibleImage } = await import('@/utils/imageCompression');
       if (isCompressibleImage(imageUrl)) {
         imageUrl = await compressImage(imageUrl, { maxWidth: 1200, maxHeight: 1200, quality: 0.8 });
       }

@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { useHardwareBackButton } from '@/hooks/useHardwareBackButton';
 import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import { getSetting, setSetting } from '@/utils/settingsStorage';
+import { saveTaskMedia, makeTaskMediaRef, deleteTaskMedia, parseTaskMediaRef } from '@/utils/taskMediaStorage';
 import { TasksSettings } from './TasksSettingsSheet';
 import { usePriorities } from '@/hooks/usePriorities';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -675,7 +676,7 @@ export const TaskInputSheet = ({ isOpen, onClose, onAddTask, folders, selectedFo
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const { saveTaskMedia, makeTaskMediaRef } = await import('@/utils/taskMediaStorage');
+    
     
     for (const file of Array.from(files)) {
       const reader = new FileReader();
@@ -706,7 +707,7 @@ export const TaskInputSheet = ({ isOpen, onClose, onAddTask, folders, selectedFo
   };
 
   const handleRemoveAttachment = async (attachmentId: string) => {
-    const { deleteTaskMedia, parseTaskMediaRef } = await import('@/utils/taskMediaStorage');
+    
     const attachment = attachments.find(a => a.id === attachmentId);
     if (attachment) {
       const parsed = parseTaskMediaRef(attachment.ref);
