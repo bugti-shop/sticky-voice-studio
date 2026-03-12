@@ -16,7 +16,7 @@ import { getTableStyles, TableStyle } from './TableEditor';
 import { InlineFindReplace } from './InlineFindReplace';
 
 import { VirtualizedCodeEditor } from './VirtualizedCodeEditor';
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 
 const sketchImport = () => import('./SketchEditor').then(m => ({ default: m.SketchEditor }));
 const SketchEditor = lazy(() =>
