@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { m as motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Lock, X, Award, Eye, ChevronRight } from 'lucide-react';
+import { Lock, Eye, ChevronRight, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ALL_ACHIEVEMENTS, Achievement, loadAchievementsData } from '@/utils/gamificationStorage';
 import { loadTodoItems } from '@/utils/todoItemsStorage';
@@ -17,11 +17,48 @@ interface CertMilestone {
   progress: number;
 }
 
+interface BadgeProgress {
+  current: number;
+  target: number;
+  percent: number;
+}
+
+const computeBadgeProgress = (
+  badge: Achievement,
+  streakCurrent: number,
+  tasksCompleted: number,
+  dailyMax: number,
+  freezeCount: number,
+  specialFlags: Record<string, boolean>
+): BadgeProgress => {
+  const target = badge.requirement;
+  let current = 0;
+
+  switch (badge.category) {
+    case 'streak':
+      current = Math.min(streakCurrent, target);
+      break;
+    case 'tasks':
+      current = Math.min(tasksCompleted, target);
+      break;
+    case 'consistency':
+      current = Math.min(dailyMax, target);
+      break;
+    case 'special':
+      if (badge.id === 'freeze_collector') current = Math.min(freezeCount, target);
+      else current = specialFlags[badge.id] ? 1 : 0;
+      break;
+  }
+
+  return { current, target, percent: Math.min(100, (current / target) * 100) };
+};
+
 export const ProfileAchievements = ({ onViewCertificate }: { onViewCertificate?: () => void }) => {
   const { t } = useTranslation();
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [selectedBadge, setSelectedBadge] = useState<Achievement | null>(null);
   const [milestones, setMilestones] = useState<CertMilestone[]>([]);
+  const [progressMap, setProgressMap] = useState<Record<string, BadgeProgress>>({});
 
   useEffect(() => {
     const load = async () => {
@@ -34,6 +71,21 @@ export const ProfileAchievements = ({ onViewCertificate }: { onViewCertificate?:
       setUnlockedIds(achievements.unlockedAchievements);
 
       const completed = tasks.filter(t => t.completed).length;
+
+      // Compute per-badge progress
+      const pMap: Record<string, BadgeProgress> = {};
+      ALL_ACHIEVEMENTS.forEach(badge => {
+        pMap[badge.id] = computeBadgeProgress(
+          badge,
+          streak.currentStreak,
+          completed,
+          0, // dailyMax - simplified
+          0, // freezeCount - simplified
+          {} // specialFlags
+        );
+      });
+      setProgressMap(pMap);
+
       setMilestones([
         {
           id: 'beginner', title: t('cert.beginner', 'Beginner'),
@@ -72,10 +124,11 @@ export const ProfileAchievements = ({ onViewCertificate }: { onViewCertificate?:
     <>
       <h3 className="text-lg font-bold text-foreground mb-3">{t('profile.achievementsTitle', 'Achievements')}</h3>
 
-      {/* Badges - Duolingo-style cards */}
+      {/* Badges with progress bars */}
       <div className="space-y-3">
-        {displayBadges.slice(0, 6).map((badge, i) => {
+        {displayBadges.slice(0, 8).map((badge, i) => {
           const isUnlocked = unlockedIds.includes(badge.id);
+          const progress = progressMap[badge.id];
           return (
             <motion.button
               key={badge.id}
@@ -84,32 +137,87 @@ export const ProfileAchievements = ({ onViewCertificate }: { onViewCertificate?:
               transition={{ delay: i * 0.05 }}
               onClick={() => setSelectedBadge(badge)}
               className={cn(
-                "w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left",
+                "w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left relative overflow-hidden",
                 isUnlocked
-                  ? "bg-card border-border/50 hover:border-primary/30"
-                  : "bg-muted/20 border-border/30 opacity-60"
+                  ? "bg-card border-warning/30"
+                  : "bg-muted/20 border-border/30"
               )}
             >
+              {/* Celebration shimmer for unlocked */}
+              {isUnlocked && (
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-warning/10 to-transparent"
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '200%' }}
+                  transition={{ duration: 2, delay: i * 0.15, repeat: Infinity, repeatDelay: 5 }}
+                />
+              )}
+
               <div className={cn(
-                "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0",
+                "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0 relative",
                 isUnlocked
-                  ? "bg-gradient-to-br from-warning/20 to-warning/5 shadow-sm"
+                  ? "bg-gradient-to-br from-warning/25 to-warning/10 shadow-sm"
                   : "bg-muted/50"
               )}>
-                {isUnlocked ? badge.icon : <Lock className="h-5 w-5 text-muted-foreground" />}
+                {isUnlocked ? (
+                  <>
+                    {badge.icon}
+                    <motion.div
+                      className="absolute -top-1 -right-1"
+                      initial={{ scale: 0, rotate: -30 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: 'spring', delay: i * 0.1 + 0.3 }}
+                    >
+                      <Sparkles className="h-4 w-4 text-warning" />
+                    </motion.div>
+                  </>
+                ) : (
+                  <Lock className="h-5 w-5 text-muted-foreground" />
+                )}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className={cn("text-sm font-semibold", isUnlocked ? "text-foreground" : "text-muted-foreground")}>
-                  {badge.name}
-                </p>
+
+              <div className="flex-1 min-w-0 relative z-10">
+                <div className="flex items-center justify-between">
+                  <p className={cn("text-sm font-semibold", isUnlocked ? "text-foreground" : "text-muted-foreground")}>
+                    {badge.name}
+                  </p>
+                  {progress && !isUnlocked && (
+                    <span className="text-[10px] font-semibold text-muted-foreground ml-2 shrink-0">
+                      {progress.current}/{progress.target}
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{badge.description}</p>
+
+                {/* Animated progress bar */}
+                {progress && !isUnlocked && (
+                  <div className="mt-2 h-2 w-full bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress.percent}%` }}
+                      transition={{ duration: 0.8, delay: i * 0.08, ease: 'easeOut' }}
+                      className="h-full rounded-full bg-gradient-to-r from-warning to-warning/70"
+                    />
+                  </div>
+                )}
+
+                {/* Unlocked indicator */}
+                {isUnlocked && (
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: 0.6, delay: i * 0.08 }}
+                    className="mt-2 h-2 w-full rounded-full bg-gradient-to-r from-success via-success/80 to-success/60"
+                  />
+                )}
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+
+              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 relative z-10" />
             </motion.button>
           );
         })}
 
-        {displayBadges.length > 6 && (
+        {displayBadges.length > 8 && (
           <button
             onClick={() => setSelectedBadge(displayBadges[0])}
             className="w-full text-center text-sm font-semibold text-primary py-2"
@@ -129,19 +237,27 @@ export const ProfileAchievements = ({ onViewCertificate }: { onViewCertificate?:
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.06 }}
             className={cn(
-              "flex items-center gap-4 p-4 rounded-2xl border",
+              "flex items-center gap-4 p-4 rounded-2xl border relative overflow-hidden",
               cert.unlocked
                 ? "bg-card border-primary/20"
                 : "bg-muted/20 border-border/30"
             )}
           >
+            {cert.unlocked && (
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/8 to-transparent"
+                initial={{ x: '-100%' }}
+                animate={{ x: '200%' }}
+                transition={{ duration: 2.5, delay: i * 0.2, repeat: Infinity, repeatDelay: 6 }}
+              />
+            )}
             <div className={cn(
               "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0",
               cert.unlocked ? "bg-primary/10" : "bg-muted/50"
             )}>
               {cert.unlocked ? cert.icon : <Lock className="h-5 w-5 text-muted-foreground" />}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 relative z-10">
               <p className={cn("text-sm font-semibold", cert.unlocked ? "text-foreground" : "text-muted-foreground")}>
                 {cert.title}
               </p>
@@ -156,11 +272,19 @@ export const ProfileAchievements = ({ onViewCertificate }: { onViewCertificate?:
                   />
                 </div>
               )}
+              {cert.unlocked && (
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: '100%' }}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  className="mt-2 h-2 rounded-full bg-gradient-to-r from-success via-success/80 to-success/60"
+                />
+              )}
             </div>
             {cert.unlocked && (
               <button
                 onClick={onViewCertificate}
-                className="shrink-0 p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                className="shrink-0 p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors relative z-10"
               >
                 <Eye className="h-4 w-4" />
               </button>
@@ -188,19 +312,72 @@ export const ProfileAchievements = ({ onViewCertificate }: { onViewCertificate?:
               onClick={e => e.stopPropagation()}
             >
               <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-6" />
-              <div className={cn(
-                "w-20 h-20 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4",
-                unlockedIds.includes(selectedBadge.id)
-                  ? "bg-gradient-to-br from-warning/20 to-warning/5 shadow-lg"
-                  : "bg-muted"
-              )}>
-                {unlockedIds.includes(selectedBadge.id)
-                  ? selectedBadge.icon
-                  : <Lock className="h-8 w-8 text-muted-foreground" />
-                }
-              </div>
+
+              {/* Badge icon with celebration */}
+              <motion.div
+                className={cn(
+                  "w-24 h-24 rounded-3xl flex items-center justify-center text-5xl mx-auto mb-4 relative",
+                  unlockedIds.includes(selectedBadge.id)
+                    ? "bg-gradient-to-br from-warning/25 to-warning/10 shadow-lg"
+                    : "bg-muted"
+                )}
+              >
+                {unlockedIds.includes(selectedBadge.id) ? (
+                  <>
+                    <motion.span
+                      initial={{ scale: 0, rotate: -20 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: 'spring', delay: 0.2 }}
+                    >
+                      {selectedBadge.icon}
+                    </motion.span>
+                    {/* Celebration particles */}
+                    {[...Array(6)].map((_, pi) => (
+                      <motion.div
+                        key={pi}
+                        className="absolute w-2 h-2 rounded-full bg-warning"
+                        initial={{ opacity: 1, scale: 1 }}
+                        animate={{
+                          opacity: 0,
+                          scale: 0,
+                          x: Math.cos((pi * 60 * Math.PI) / 180) * 50,
+                          y: Math.sin((pi * 60 * Math.PI) / 180) * 50,
+                        }}
+                        transition={{ duration: 0.8, delay: 0.3 + pi * 0.05 }}
+                      />
+                    ))}
+                  </>
+                ) : (
+                  <Lock className="h-10 w-10 text-muted-foreground" />
+                )}
+              </motion.div>
+
               <h3 className="text-xl font-bold text-foreground">{selectedBadge.name}</h3>
               <p className="text-sm text-muted-foreground mt-2 max-w-xs mx-auto">{selectedBadge.description}</p>
+
+              {/* Progress in modal */}
+              {progressMap[selectedBadge.id] && (
+                <div className="mt-4 max-w-xs mx-auto">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                    <span>{t('profile.progress', 'Progress')}</span>
+                    <span>{progressMap[selectedBadge.id].current}/{progressMap[selectedBadge.id].target}</span>
+                  </div>
+                  <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${unlockedIds.includes(selectedBadge.id) ? 100 : progressMap[selectedBadge.id].percent}%` }}
+                      transition={{ duration: 0.8 }}
+                      className={cn(
+                        "h-full rounded-full",
+                        unlockedIds.includes(selectedBadge.id)
+                          ? "bg-gradient-to-r from-success to-success/70"
+                          : "bg-gradient-to-r from-warning to-warning/70"
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className={cn(
                 "mt-5 inline-block px-4 py-1.5 rounded-full text-xs font-semibold",
                 unlockedIds.includes(selectedBadge.id)
