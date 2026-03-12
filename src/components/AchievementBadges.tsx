@@ -11,7 +11,7 @@ import {
 } from '@/utils/gamificationStorage';
 import { playAchievementSound } from '@/utils/gamificationSounds';
 
-import Confetti from 'react-confetti';
+import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 
 interface AchievementBadgesProps {
   compact?: boolean;

@@ -13,7 +13,7 @@ import {
 } from '@/utils/monthlyChallengeStorage';
 import { Progress } from '@/components/ui/progress';
 import { playChallengeCompleteSound } from '@/utils/gamificationSounds';
-import Confetti from 'react-confetti';
+import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 
 export const MonthlyChallengeBoard = () => {
   const { t } = useTranslation();

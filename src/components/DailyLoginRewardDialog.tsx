@@ -4,7 +4,7 @@ import { Check, Gift } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { triggerHaptic } from '@/utils/haptics';
-import Confetti from 'react-confetti';
+import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 import {
   DAILY_REWARDS,
   checkDailyReward,
