@@ -504,7 +504,7 @@ export const TaskDetailPage = ({
     const files = e.target.files;
     if (!files || files.length === 0 || !task) return;
 
-    const { saveTaskMedia, makeTaskMediaRef } = await import('@/utils/taskMediaStorage');
+    
     const newAttachments: TaskAttachment[] = [];
     
     for (const file of Array.from(files)) {
