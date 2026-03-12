@@ -60,7 +60,7 @@ interface TaskFlatItemProps {
 
 const SWIPE_ACTION_WIDTH = 60;
 
-export const TaskFlatItem = ({
+export const TaskFlatItem = memo(({
   item, compactMode, isSelectionMode, selectedTaskIds, pendingCompleteId,
   expandedTasks, hideDetailsOptions, showStatusBadge, allGlobalTags,
   swipeState: currentSwipeState, voiceState, getPriorityColor,
