@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { setLauncherIcon } from '@/utils/dynamicIcon';
-import defaultLogo from '@/assets/app-logo.png';
-import sadLogo from '@/assets/sad-logo.png';
-import angryLogo from '@/assets/angry-logo.png';
+import defaultLogo from '@/assets/app-logo.webp';
+import sadLogo from '@/assets/sad-logo.webp';
+import angryLogo from '@/assets/angry-logo.webp';
 
 const LAST_OPEN_KEY = 'lastAppOpenTime';
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;

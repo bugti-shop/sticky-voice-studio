@@ -5,7 +5,7 @@
  * IMPORTANT: All styles use inline CSS for html2canvas compatibility.
  * Do NOT use Tailwind classes here — they can break when rendering to image.
  */
-import npdLogo from '@/assets/npd-reminder-logo.png';
+import npdLogo from '@/assets/npd-reminder-logo.webp';
 
 interface CardBrandingFooterProps {
   color?: string;

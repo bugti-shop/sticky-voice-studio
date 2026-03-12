@@ -1,6 +1,6 @@
 import { m as motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import welcomeImage from '@/assets/welcome-notes.png';
+import welcomeImage from '@/assets/welcome-notes.webp';
 import { triggerHaptic } from '@/utils/haptics';
 
 interface WelcomeProps {
