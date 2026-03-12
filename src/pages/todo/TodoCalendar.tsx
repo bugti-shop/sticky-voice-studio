@@ -5,6 +5,7 @@ import { NotesCalendarView } from '@/components/NotesCalendarView';
 import { CalendarSyncBadge } from '@/components/CalendarSyncBadge';
 import { Plus, ListTodo, CalendarDays, Clock, MapPin, Repeat, Trash2, Edit, MoreVertical, X, GripVertical, LayoutList, Columns3, GitBranch, Flag, ListChecks, ChevronRight, ChevronDown, TrendingUp, History, CheckCircle2, Circle, Loader2, Sun, AlertCircle, Crown } from 'lucide-react';
 import { useSubscription, FREE_LIMITS } from '@/contexts/SubscriptionContext';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { Button } from '@/components/ui/button';
 import { TaskInputSheet } from '@/components/TaskInputSheet';
 import { TodoItem, Folder, CalendarEvent, Priority, TaskSection, TaskStatus } from '@/types/note';
