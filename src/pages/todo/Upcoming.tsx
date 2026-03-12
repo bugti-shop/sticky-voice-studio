@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useTransition, useDeferredValue } from 'react';
 import { useTaskWorker } from '@/hooks/useTaskWorker';
 import { recordCompletion, TASK_STREAK_KEY } from '@/utils/streakStorage';
 
@@ -50,13 +50,16 @@ const Upcoming = () => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
   
-  // Filters
+  // Filters — use deferred values so input stays responsive while list re-renders
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [smartList, setSmartList] = useState<SmartListType>('all');
+  const deferredPriorityFilter = useDeferredValue(priorityFilter);
+  const deferredStatusFilter = useDeferredValue(statusFilter);
+  const deferredTagFilter = useDeferredValue(tagFilter);
   
   // Sheets
   const [isSelectActionsOpen, setIsSelectActionsOpen] = useState(false);
@@ -342,15 +345,15 @@ const Upcoming = () => {
       const smartFilter = getSmartListFilter(smartList);
       filtered = filtered.filter(smartFilter);
     }
-    if (priorityFilter !== 'all') filtered = filtered.filter(item => item.priority === priorityFilter);
-    if (statusFilter !== 'all') {
-      if (statusFilter === 'completed') filtered = filtered.filter(item => item.completed);
+    if (deferredPriorityFilter !== 'all') filtered = filtered.filter(item => item.priority === deferredPriorityFilter);
+    if (deferredStatusFilter !== 'all') {
+      if (deferredStatusFilter === 'completed') filtered = filtered.filter(item => item.completed);
       else filtered = filtered.filter(item => !item.completed);
     }
     if (selectedFolderId) filtered = filtered.filter(item => item.folderId === selectedFolderId);
     if (!showCompleted) filtered = filtered.filter(item => !item.completed);
     return filtered;
-  }, [workerGroups, worker.isAvailable, items, smartList, priorityFilter, statusFilter, selectedFolderId, showCompleted]);
+  }, [workerGroups, worker.isAvailable, items, smartList, deferredPriorityFilter, deferredStatusFilter, selectedFolderId, showCompleted]);
 
   const filteredItems = filteredItemsFallback || [];
 

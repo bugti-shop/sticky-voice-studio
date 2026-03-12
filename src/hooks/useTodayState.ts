@@ -2,7 +2,7 @@
  * useTodayState — Central state management for the Today page.
  * Extracts all useState declarations and settings persistence from Today.tsx
  */
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, useDeferredValue } from 'react';
 import { useTaskWorker, FilterSortResult } from '@/hooks/useTaskWorker';
 import { TodoItem, Folder, Priority, TaskSection, TaskStatus } from '@/types/note';
 import { useTranslation } from 'react-i18next';
@@ -68,6 +68,7 @@ export const useTodayState = () => {
   const [compactMode, setCompactMode] = useState(false);
   const [groupByOption, setGroupByOption] = useState<'none' | 'section' | 'priority' | 'date'>('none');
   const [viewModeSearch, setViewModeSearch] = useState('');
+  const deferredSearch = useDeferredValue(viewModeSearch);
   const [dropdownView, setDropdownView] = useState<'main' | 'smartLists' | 'sortBy' | 'groupBy'>('main');
 
   // Sheet states
@@ -287,12 +288,12 @@ export const useTodayState = () => {
       dateFilter,
       tagFilter,
       sortBy,
-      searchQuery: viewModeSearch,
+      searchQuery: deferredSearch,
       showCompleted: true,
     };
 
     // Skip if payload hasn't changed
-    const key = JSON.stringify([smartList, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, sortBy, viewModeSearch, items.length]);
+    const key = JSON.stringify([smartList, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, sortBy, deferredSearch, items.length]);
     if (key === workerPayloadRef.current && workerResult) return;
     workerPayloadRef.current = key;
 
@@ -301,7 +302,7 @@ export const useTodayState = () => {
         if (result) setWorkerResult(result);
       });
     }
-  }, [items, smartList, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, sortBy, viewModeSearch]);
+  }, [items, smartList, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, sortBy, deferredSearch]);
 
   // Main-thread fallback (used when worker hasn't returned yet or is unavailable)
   const processedItemsFallback = useMemo(() => {
@@ -375,13 +376,13 @@ export const useTodayState = () => {
 
   const searchFilteredItems = useMemo(() => {
     // If worker already handled search, skip client-side search
-    if (workerResult && worker.isAvailable && viewModeSearch.trim()) return processedItems;
-    if (!viewModeSearch.trim()) return processedItems;
-    const search = viewModeSearch.toLowerCase();
+    if (workerResult && worker.isAvailable && deferredSearch.trim()) return processedItems;
+    if (!deferredSearch.trim()) return processedItems;
+    const search = deferredSearch.toLowerCase();
     return processedItems.filter(item => 
       item.text.toLowerCase().includes(search) || item.description?.toLowerCase().includes(search)
     );
-  }, [processedItems, viewModeSearch, workerResult, worker.isAvailable]);
+  }, [processedItems, deferredSearch, workerResult, worker.isAvailable]);
 
   const uncompletedItems = useMemo(() => searchFilteredItems.filter(item => !item.completed), [searchFilteredItems]);
   const completedItems = useMemo(() => searchFilteredItems.filter(item => item.completed), [searchFilteredItems]);

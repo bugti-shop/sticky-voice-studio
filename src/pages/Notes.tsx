@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useDeferredValue, useTransition } from 'react';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { Note } from '@/types/note';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -73,8 +73,10 @@ const Notes = () => {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'active' | 'archived' | 'trash'>('active');
   const [searchQuery, setSearchQuery] = useState('');
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const [showTagManager, setShowTagManager] = useState(false);
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
+  const deferredFilterTagIds = useDeferredValue(filterTagIds);
   const [allTags, setAllTags] = useState<import('@/utils/tagStorage').AppTag[]>([]);
 
   // Load tags for filtering
@@ -262,16 +264,16 @@ const Notes = () => {
     
     if (!viewMatch) return false;
 
-    // Tag filter
-    if (filterTagIds.length > 0) {
-      if (!note.tagIds || !filterTagIds.some(id => note.tagIds!.includes(id))) {
+    // Tag filter (uses deferred value for non-blocking UI)
+    if (deferredFilterTagIds.length > 0) {
+      if (!note.tagIds || !deferredFilterTagIds.some(id => note.tagIds!.includes(id))) {
         return false;
       }
     }
     
     // Search filter using contentPreview (200 chars) instead of full content (200k words!)
-    if (searchQuery.trim()) {
-      const search = searchQuery.toLowerCase();
+    if (deferredSearchQuery.trim()) {
+      const search = deferredSearchQuery.toLowerCase();
       const titleMatch = note.title.toLowerCase().includes(search);
       // Use pre-computed contentPreview from metadata - no HTML stripping needed!
       const contentMatch = meta?.contentPreview?.toLowerCase().includes(search) ?? false;
