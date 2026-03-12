@@ -93,7 +93,6 @@ const Upcoming = () => {
   useEffect(() => {
     const loadAll = async () => {
       await loadItems();
-      const { getSetting } = await import('@/utils/settingsStorage');
       const savedFolders = await getSetting<Folder[] | null>('todoFolders', null);
       if (savedFolders) {
         setFolders(savedFolders.map((f: Folder) => ({ ...f, createdAt: new Date(f.createdAt) })));
