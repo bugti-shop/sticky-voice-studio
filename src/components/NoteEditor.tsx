@@ -346,8 +346,7 @@ export const NoteEditor = ({ note, isOpen, onClose, onSave, defaultType = 'regul
       // Load default font settings from notes settings
       const loadDefaultFontSettings = async () => {
         try {
-          const { getSetting } = await import('@/utils/settingsStorage');
-          const notesSettings = await getSetting<{ 
+          const notesSettings = await getSetting<{
             normalText?: { fontFamily?: string; fontSize?: string; fontColor?: string };
             headings?: { fontFamily?: string; fontSize?: string; fontColor?: string };
           } | null>('notesEditorSettings', null);
