@@ -131,7 +131,6 @@ const CustomToolDetail = () => {
     
     // Also remove from tool's linked tasks
     if (tool) {
-      const { getSetting, setSetting } = await import('@/utils/settingsStorage');
       const savedTools = await getSetting<CustomTool[]>('customProductivityTools', []);
       const updatedTool = savedTools.map((t: CustomTool) => {
         if (t.id === tool.id) {
