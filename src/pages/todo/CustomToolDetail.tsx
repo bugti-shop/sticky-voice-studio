@@ -378,7 +378,7 @@ const CustomToolDetail = () => {
         </div>
 
         {/* Tasks List */}
-        <ScrollArea className="flex-1 px-4 pb-24">
+        <ScrollArea className="flex-1 px-4 pb-24 perf-contain-scroll">
           {linkedTasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <IconComponent className="h-12 w-12 text-muted-foreground/30 mb-4" />

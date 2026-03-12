@@ -298,7 +298,7 @@ const TaskHistory = () => {
           </div>
 
           {/* Task List */}
-          <ScrollArea className="h-[calc(100vh-380px)]">
+          <ScrollArea className="h-[calc(100vh-380px)] perf-contain-scroll">
             <div className="space-y-6">
               {Object.entries(groupedTasks).map(([groupName, tasks]) => (
                 <div key={groupName}>

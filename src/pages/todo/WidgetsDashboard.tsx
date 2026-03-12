@@ -179,7 +179,7 @@ const WidgetsDashboard = () => {
 
   return (
     <TodoLayout title={t('dashboard.title')}>
-      <ScrollArea className="h-[calc(100vh-140px)]">
+      <ScrollArea className="h-[calc(100vh-140px)] perf-contain-scroll">
         <main className="container mx-auto px-4 py-6 pb-32">
           <div className="max-w-lg mx-auto space-y-6">
             {/* Quick Stats Row */}
