@@ -314,7 +314,6 @@ const TodoCalendar = () => {
 
   const confirmDeleteEvent = async () => {
     if (eventToDelete) {
-      const { setSetting } = await import('@/utils/settingsStorage');
       const updatedEvents = events.filter(e => e.id !== eventToDelete.id);
       setEvents(updatedEvents);
       await setSetting('calendarEvents', updatedEvents);
