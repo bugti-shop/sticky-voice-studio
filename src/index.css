@@ -701,3 +701,26 @@ table th[contenteditable="true"]:hover {
 .animate-shake {
   animation: shake 0.5s ease-in-out;
 }
+
+/* ── Performance: CSS Containment ── */
+/* List items: isolate layout/paint so sibling changes don't trigger full reflow */
+.perf-contain-item {
+  contain: content;
+}
+
+/* Scroll containers: strict containment for scroll performance */
+.perf-contain-scroll {
+  contain: strict;
+  overflow: auto;
+}
+
+/* GPU-accelerated elements: swipe actions, sheets, draggable items */
+.perf-gpu-layer {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Animated elements: promote to compositor layer during transitions */
+.perf-will-animate {
+  will-change: transform, opacity;
+}

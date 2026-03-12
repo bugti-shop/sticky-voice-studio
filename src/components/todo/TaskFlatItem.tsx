@@ -279,4 +279,5 @@ export const TaskFlatItem = memo(({
       </div>
     </div>
   );
-};
+});
+TaskFlatItem.displayName = 'TaskFlatItem';

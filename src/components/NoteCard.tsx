@@ -480,4 +480,5 @@ export const NoteCard = memo(({ note, onEdit, onDelete, onArchive, onTogglePin, 
       </DropdownMenu>
     </div>
   );
-};
+});
+NoteCard.displayName = 'NoteCard';
