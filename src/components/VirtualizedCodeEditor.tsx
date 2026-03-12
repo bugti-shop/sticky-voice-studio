@@ -126,49 +126,50 @@ export const VirtualizedCodeEditor = ({
     }
   }, [code]);
 
-  const highlightCode = useCallback(async (codeToHighlight: string, lang: string) => {
-    setIsHighlighting(true);
+  const highlightCode = useCallback((codeToHighlight: string, lang: string) => {
+    const highlightAsync = async () => {
+      setIsHighlighting(true);
 
-    try {
-      // Lazy load highlight.js on first use
-      if (!hljsRef.current) {
-        const mod = await import('highlight.js');
-        hljsRef.current = mod.default;
-      }
-      const hljs = hljsRef.current;
-
-      let result: string;
-      let detected = lang;
-
-      if (lang === 'auto' || !lang) {
-        const sample = codeToHighlight.substring(0, 2000);
-        const autoResult = hljs.highlightAuto(sample);
-        detected = autoResult.language || 'plaintext';
-        setDetectedLanguage(detected);
-
-        if (detected !== 'plaintext') {
-          result = hljs.highlight(codeToHighlight, { language: detected, ignoreIllegals: true }).value;
-        } else {
-          result = codeToHighlight.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      try {
+        // Lazy load highlight.js on first use (~200KB saved from initial bundle)
+        if (!hljsRef.current) {
+          const mod = await import('highlight.js');
+          hljsRef.current = mod.default;
         }
-      } else if (lang === 'plaintext') {
-        result = codeToHighlight.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      } else {
-        result = hljs.highlight(codeToHighlight, { language: lang, ignoreIllegals: true }).value;
+        const hljs = hljsRef.current;
+
+        let result: string;
+        let detected = lang;
+
+        if (lang === 'auto' || !lang) {
+          const sample = codeToHighlight.substring(0, 2000);
+          const autoResult = hljs.highlightAuto(sample);
+          detected = autoResult.language || 'plaintext';
+          setDetectedLanguage(detected);
+
+          if (detected !== 'plaintext') {
+            result = hljs.highlight(codeToHighlight, { language: detected, ignoreIllegals: true }).value;
+          } else {
+            result = codeToHighlight.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          }
+        } else if (lang === 'plaintext') {
+          result = codeToHighlight.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        } else {
+          result = hljs.highlight(codeToHighlight, { language: lang, ignoreIllegals: true }).value;
+        }
+
+        setHighlightedLines(result.split('\n'));
+      } catch {
+        setHighlightedLines(code.split('\n').map(l => l.replace(/</g, '&lt;').replace(/>/g, '&gt;')));
       }
 
-      setHighlightedLines(result.split('\n'));
-    } catch {
-      setHighlightedLines(code.split('\n').map(l => l.replace(/</g, '&lt;').replace(/>/g, '&gt;')));
-    }
-
-    setIsHighlighting(false);
+      setIsHighlighting(false);
     };
 
     if ('requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(highlightAsync, { timeout: 500 });
+      (window as any).requestIdleCallback(() => highlightAsync(), { timeout: 500 });
     } else {
-      setTimeout(highlightAsync, 0);
+      setTimeout(() => highlightAsync(), 0);
     }
   }, []);
 
