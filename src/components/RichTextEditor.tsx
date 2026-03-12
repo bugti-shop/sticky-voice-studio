@@ -1157,7 +1157,7 @@ export const RichTextEditor = ({
             const cursorPos = range.startOffset;
             // Only trigger after space, punctuation, or newline
             if (cursorPos > 0 && /[\s.,!?)\]}>]/.test(text.charAt(cursorPos - 1))) {
-              applySmartDetection(textNode as Text, cursorPos);
+              applySmartDetection(textNode as Text, cursorPos, smartDetectionSettings);
             }
           }
         }
