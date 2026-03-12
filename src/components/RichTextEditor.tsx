@@ -36,56 +36,20 @@ import { TableEditor, generateTableHTML, TableContextMenu, TableStyle } from './
 import { WordToolbar } from './WordToolbar';
 import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { autoCalculate } from '@/utils/autoCalculator';
-// Simple helper functions for file handling (no native plugins)
-const getMimeType = (filename: string): string => {
-  const ext = filename.split('.').pop()?.toLowerCase() || '';
-  const mimeTypes: Record<string, string> = {
-    'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png', 'gif': 'image/gif',
-    'mp3': 'audio/mpeg', 'wav': 'audio/wav', 'mp4': 'video/mp4', 'pdf': 'application/pdf',
-    'doc': 'application/msword', 'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'txt': 'text/plain', 'zip': 'application/zip',
-  };
-  return mimeTypes[ext] || 'application/octet-stream';
-};
-
-const getFileCategory = (filename: string): 'image' | 'audio' | 'video' | 'document' | 'other' => {
-  const mimeType = getMimeType(filename);
-  if (mimeType.startsWith('image/')) return 'image';
-  if (mimeType.startsWith('audio/')) return 'audio';
-  if (mimeType.startsWith('video/')) return 'video';
-  if (mimeType.includes('pdf') || mimeType.includes('document') || mimeType.startsWith('text/')) return 'document';
-  return 'other';
-};
-
-// Download file on web (fallback for removed native file opener)
-const downloadFile = (dataUrl: string, filename: string) => {
-  const parts = dataUrl.split(',');
-  const mimeMatch = parts[0].match(/:(.*?);/);
-  const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
-  const b64 = atob(parts[1]);
-  const u8arr = new Uint8Array(b64.length);
-  for (let i = 0; i < b64.length; i++) u8arr[i] = b64.charCodeAt(i);
-  const blob = new Blob([u8arr], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-};
 import { useNotesSettings } from './NotesSettingsSheet';
 import { copySelectionWithFormatting } from '@/utils/richTextCopy';
 
-// Favorites storage helpers
-const FAVORITES_KEY = 'note-font-favorites';
-const getFavorites = async (): Promise<string[]> => {
-  return getSetting<string[]>(FAVORITES_KEY, []);
-};
-const saveFavorites = (favorites: string[]) => {
-  setSetting(FAVORITES_KEY, favorites);
-};
+import { VoiceRecording } from '@/types/note';
+
+// Extracted modules
+import {
+  getMimeType, getFileCategory, downloadFile,
+  getFavorites, saveFavorites,
+  COLORS, HIGHLIGHT_COLORS, FONT_CATEGORIES, getAllFonts,
+  FONT_WEIGHTS, FONT_SIZES, LETTER_SPACINGS, LINE_HEIGHTS,
+} from './richtext/richTextConstants';
+import { applySmartDetection, SmartDetectionSettings } from './richtext/richTextDetection';
+import { RICH_TEXT_EDITOR_STYLES } from './richtext/richTextStyles';
 
 import { VoiceRecording } from '@/types/note';
 
