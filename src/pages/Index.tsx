@@ -16,6 +16,7 @@ import { createNote } from '@/utils/noteDefaults';
 import { MasonryNotesGrid } from '@/components/MasonryNotesGrid';
 import { VirtualizedNotesGrid, VirtualizedNotesList, shouldVirtualizeNotes } from '@/components/VirtualizedNotesGrid';
 import { useNoteTypeVisibility } from '@/hooks/useNoteTypeVisibility';
+import { getVisibleFeatures } from '@/utils/noteTypeVisibility';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
