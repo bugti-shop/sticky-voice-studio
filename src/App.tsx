@@ -216,7 +216,7 @@ const AppRoutes = () => {
 
 const AppContent = () => {
   const [isAppLocked, setIsAppLocked] = useState<boolean | null>(null);
-  const { mood, daysAway, isReturning, acknowledgeReturn } = useRetentionLogo();
+  
   
   // Initialize keyboard height detection for mobile toolbar positioning
   useKeyboardHeight();
