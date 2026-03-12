@@ -259,11 +259,15 @@ export const useTodayState = () => {
 
   // Geofencing
   useEffect(() => {
-    const { hasLocationReminders, startGeofenceWatching } = require('@/utils/geofencing');
-    if (hasLocationReminders(items)) {
-      const stopWatching = startGeofenceWatching(() => items);
-      return stopWatching;
-    }
+    let stopWatching: (() => void) | undefined;
+    const initGeofencing = async () => {
+      const { hasLocationReminders, startGeofenceWatching } = await import('@/utils/geofencing');
+      if (hasLocationReminders(items)) {
+        stopWatching = startGeofenceWatching(() => items);
+      }
+    };
+    initGeofencing().catch(console.warn);
+    return () => { stopWatching?.(); };
   }, [items]);
 
   // Processed items (filtered + sorted)
