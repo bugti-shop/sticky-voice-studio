@@ -50,13 +50,16 @@ const Upcoming = () => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
   
-  // Filters
+  // Filters — use deferred values so input stays responsive while list re-renders
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [smartList, setSmartList] = useState<SmartListType>('all');
+  const deferredPriorityFilter = useDeferredValue(priorityFilter);
+  const deferredStatusFilter = useDeferredValue(statusFilter);
+  const deferredTagFilter = useDeferredValue(tagFilter);
   
   // Sheets
   const [isSelectActionsOpen, setIsSelectActionsOpen] = useState(false);
