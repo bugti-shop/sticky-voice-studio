@@ -12,6 +12,7 @@ import { FolderManager } from '@/components/FolderManager';
 import { MoveToFolderSheet } from '@/components/MoveToFolderSheet';
 import { NoteTemplateSheet } from '@/components/NoteTemplateSheet';
 import { createNote } from '@/utils/noteDefaults';
+import { saveNotesToDB } from '@/utils/noteStorage';
 
 import { MasonryNotesGrid } from '@/components/MasonryNotesGrid';
 import { VirtualizedNotesGrid, VirtualizedNotesList, shouldVirtualizeNotes } from '@/components/VirtualizedNotesGrid';
