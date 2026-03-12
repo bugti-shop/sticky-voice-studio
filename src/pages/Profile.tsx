@@ -268,10 +268,6 @@ export default function Profile() {
         <ProfileAchievements onViewCertificate={() => navigate('/todo/journey-badges')} />
       </div>
 
-      {/* Account Options */}
-      <div className="px-5 mt-6">
-        <ProfileAccountOptions />
-      </div>
 
       {lastDashboard === 'todo' ? <TodoBottomNavigation /> : <BottomNavigation />}
 
