@@ -31,7 +31,6 @@ createRoot(document.getElementById("root")!).render(
 scheduleDeferred(async () => {
   try {
     const [
-      { migrateNotesToIndexedDB },
       { initializeTaskOrder },
       { initializeProtectionSettings },
       { startBackgroundScheduler },
@@ -40,7 +39,6 @@ scheduleDeferred(async () => {
       { initializeSmartNotifications },
       { configureStatusBar },
     ] = await Promise.all([
-      import("./utils/noteStorage"),
       import("./utils/taskOrderStorage"),
       import("./utils/noteProtection"),
       import("./utils/backgroundScheduler"),
