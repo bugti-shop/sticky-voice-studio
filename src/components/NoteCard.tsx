@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { AppTag, getAllTags } from '@/utils/tagStorage';
 import { useTranslation } from 'react-i18next';
 import { Note } from '@/types/note';
@@ -62,7 +62,7 @@ const RANDOM_COLORS = [
   'hsl(60, 90%, 75%)',
 ];
 
-export const NoteCard = ({ note, onEdit, onDelete, onArchive, onTogglePin, onToggleFavorite, onMoveToFolder, onDragStart, onDragOver, onDrop, onDragEnd, isSelectionMode = false, isSelected = false, onToggleSelection, onDuplicate, onHide, onProtect }: NoteCardProps) => {
+export const NoteCard = memo(({ note, onEdit, onDelete, onArchive, onTogglePin, onToggleFavorite, onMoveToFolder, onDragStart, onDragOver, onDrop, onDragEnd, isSelectionMode = false, isSelected = false, onToggleSelection, onDuplicate, onHide, onProtect }: NoteCardProps) => {
   const { t } = useTranslation();
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [swipeOffset, setSwipeOffset] = useState(0);
@@ -480,4 +480,5 @@ export const NoteCard = ({ note, onEdit, onDelete, onArchive, onTogglePin, onTog
       </DropdownMenu>
     </div>
   );
-};
+});
+NoteCard.displayName = 'NoteCard';

@@ -187,7 +187,7 @@ export const TaskSwipeActions = ({
 
       {/* Swipeable content wrapper */}
       <div
-        className={isSwiping ? '' : 'transition-transform duration-200'}
+        className={cn('perf-gpu-layer', isSwiping ? '' : 'transition-transform duration-200')}
         style={{ transform: `translateX(${swipeOffset}px)` }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
