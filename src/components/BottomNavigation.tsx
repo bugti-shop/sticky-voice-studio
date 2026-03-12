@@ -70,6 +70,8 @@ export const BottomNavigation = () => {
               type="button"
               data-tour={`${item.id}-link`}
               onClick={() => handleNavigation(item.path)}
+              onPointerEnter={() => prefetchRoute(item.path)}
+              onTouchStart={() => prefetchRoute(item.path)}
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 transition-colors min-w-0 px-0.5 touch-target touch-manipulation select-none",
                 isActive ? "text-primary" : "text-muted-foreground"
