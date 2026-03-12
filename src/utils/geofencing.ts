@@ -92,7 +92,7 @@ const sendLocalNotification = async (
         if (perm === 'granted') {
           new Notification(isEntering ? '📍 Location Reminder' : '📍 Leaving Area', {
             body,
-            icon: '/nota-logo.png',
+            icon: '/nota-logo.webp',
           });
         }
       }
