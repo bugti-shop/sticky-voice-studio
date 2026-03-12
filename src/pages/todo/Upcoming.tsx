@@ -20,7 +20,7 @@ import { PrioritySelectSheet } from '@/components/PrioritySelectSheet';
 import { TaskItem } from '@/components/TaskItem';
 import { SmartListsDropdown, SmartListType, getSmartListFilter } from '@/components/SmartListsDropdown';
 import { lazy, Suspense } from 'react';
-const LocationRemindersMap = lazy(() => import('@/components/LocationRemindersMap').then(m => ({ default: m.LocationRemindersMap ?? m.default })));
+const LocationRemindersMap = lazy(() => import('@/components/LocationRemindersMap').then(m => ({ default: m.LocationRemindersMap })));
 
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';

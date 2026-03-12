@@ -17,7 +17,7 @@ import { InlineFindReplace } from './InlineFindReplace';
 
 import { VirtualizedCodeEditor } from './VirtualizedCodeEditor';
 import { lazy, Suspense } from 'react';
-const SketchEditor = lazy(() => import('./SketchEditor').then(m => ({ default: m.SketchEditor ?? m.default })));
+const SketchEditor = lazy(() => import('./SketchEditor').then(m => ({ default: m.SketchEditor })));
 import { SketchNotebookLibrary } from './SketchNotebookLibrary';
 import { TemplateSelector } from './TemplateSelector';
 import { NoteVersionHistorySheet } from './NoteVersionHistorySheet';

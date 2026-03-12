@@ -4536,6 +4536,8 @@ export const SketchEditor = memo(({ initialData, onChange, onImageExport, classN
           reader.onloadend = async () => {
             const base64 = (reader.result as string).split(',')[1];
             const fileName = `timelapse_${Date.now()}.webm`;
+            const { Filesystem, Directory } = await import('@capacitor/filesystem');
+            const { Share } = await import('@capacitor/share');
             await Filesystem.writeFile({
               path: fileName,
               data: base64,

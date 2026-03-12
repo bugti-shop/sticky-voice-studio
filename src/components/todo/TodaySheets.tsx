@@ -25,7 +25,7 @@ import { TaskOptionsSheet, HideDetailsOptions } from '@/components/TaskOptionsSh
 import { AutoScheduleSheet } from '@/components/AutoScheduleSheet';
 import { ResolvedImageDialog } from '@/components/ResolvedImageDialog';
 import { lazy, Suspense } from 'react';
-const LocationRemindersMap = lazy(() => import('@/components/LocationRemindersMap').then(m => ({ default: m.LocationRemindersMap ?? m.default })));
+const LocationRemindersMap = lazy(() => import('@/components/LocationRemindersMap').then(m => ({ default: m.LocationRemindersMap })));
 import { BulkDateSheet } from '@/components/BulkDateSheet';
 import { BulkReminderSheet } from '@/components/BulkReminderSheet';
 import { BulkRepeatSheet } from '@/components/BulkRepeatSheet';
