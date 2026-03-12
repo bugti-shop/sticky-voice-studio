@@ -4,6 +4,7 @@
  */
 import { useCallback, useRef } from 'react';
 import { TodoItem, Folder, Priority, Note, TaskSection } from '@/types/note';
+import { loadNotesFromDB, saveNotesToDB } from '@/utils/noteStorage';
 import { useTranslation } from 'react-i18next';
 import { recordCompletion, TASK_STREAK_KEY } from '@/utils/streakStorage';
 import { createNextRecurringTask } from '@/utils/recurringTasks';
