@@ -537,7 +537,7 @@ export const TaskDetailPage = ({
 
   const handleRemoveAttachment = async (attachmentId: string) => {
     if (!task) return;
-    const { deleteTaskMedia, parseTaskMediaRef } = await import('@/utils/taskMediaStorage');
+    
     const attachment = task.attachments?.find(a => a.id === attachmentId);
     if (attachment) {
       const parsed = parseTaskMediaRef(attachment.ref);
