@@ -85,7 +85,7 @@ const sendLocalNotification = async (
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(isEntering ? '📍 Location Reminder' : '📍 Leaving Area', {
           body,
-          icon: '/nota-logo.png',
+          icon: '/nota-logo.webp',
         });
       } else if ('Notification' in window && Notification.permission !== 'denied') {
         const perm = await Notification.requestPermission();
