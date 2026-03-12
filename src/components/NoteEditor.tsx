@@ -16,15 +16,15 @@ import { getTableStyles, TableStyle } from './TableEditor';
 import { InlineFindReplace } from './InlineFindReplace';
 
 import { VirtualizedCodeEditor } from './VirtualizedCodeEditor';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
+
+const sketchImport = () => import('./SketchEditor').then(m => ({ default: m.SketchEditor }));
 const SketchEditor = lazy(() =>
-  import('./SketchEditor')
-    .then(m => ({ default: m.SketchEditor }))
-    .catch(() => {
-      // Retry once on chunk fetch failure (stale hash after rebuild)
-      return import('./SketchEditor').then(m => ({ default: m.SketchEditor }));
-    })
+  sketchImport().catch(() => sketchImport())
 );
+
+// Preload sketch chunk as soon as NoteEditor module is loaded
+sketchImport().catch(() => {});
 import { SketchNotebookLibrary } from './SketchNotebookLibrary';
 import { TemplateSelector } from './TemplateSelector';
 import { NoteVersionHistorySheet } from './NoteVersionHistorySheet';
