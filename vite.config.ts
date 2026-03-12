@@ -59,11 +59,11 @@ export default defineConfig(({ mode }) => ({
     dedupe: ["react", "react-dom", "react/jsx-runtime"],
   },
   build: {
+    target: 'es2020',
+    cssMinify: true,
     rollupOptions: {
       output: {
         manualChunks: {
-          // Split heavy vendor libs into separate cacheable chunks
-          'vendor-mapbox': ['mapbox-gl'],
           'vendor-recharts': ['recharts'],
           'vendor-dnd': ['@hello-pangea/dnd'],
           'vendor-radix': [

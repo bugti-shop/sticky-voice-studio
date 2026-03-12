@@ -16,7 +16,8 @@ import { getTableStyles, TableStyle } from './TableEditor';
 import { InlineFindReplace } from './InlineFindReplace';
 
 import { VirtualizedCodeEditor } from './VirtualizedCodeEditor';
-import { SketchEditor } from './SketchEditor';
+import { lazy, Suspense } from 'react';
+const SketchEditor = lazy(() => import('./SketchEditor').then(m => ({ default: m.SketchEditor })));
 import { SketchNotebookLibrary } from './SketchNotebookLibrary';
 import { TemplateSelector } from './TemplateSelector';
 import { NoteVersionHistorySheet } from './NoteVersionHistorySheet';
@@ -1756,14 +1757,16 @@ export const NoteEditor = ({ note, isOpen, onClose, onSave, defaultType = 'regul
           ) : noteType === 'sketch' ? (
             <div className="flex h-full relative">
               <div className="flex-1 relative">
-                <SketchEditor
-                  initialData={content}
-                  onChange={setContent}
-                  onImageExport={(png) => {
-                    setImages(prev => [...prev, png]);
-                    toast.success(t('toast.sketchExported', 'Sketch exported as image'));
-                  }}
-                />
+                <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                  <SketchEditor
+                    initialData={content}
+                    onChange={setContent}
+                    onImageExport={(png) => {
+                      setImages(prev => [...prev, png]);
+                      toast.success(t('toast.sketchExported', 'Sketch exported as image'));
+                    }}
+                  />
+                </Suspense>
               </div>
             </div>
           ) : noteType === 'code' ? (

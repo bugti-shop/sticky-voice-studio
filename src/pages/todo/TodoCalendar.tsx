@@ -16,7 +16,8 @@ import { SelectActionsSheet, SelectAction } from '@/components/SelectActionsShee
 import { MoveToFolderSheet } from '@/components/MoveToFolderSheet';
 import { PrioritySelectSheet } from '@/components/PrioritySelectSheet';
 import { SmartListsDropdown, SmartListType, getSmartListFilter } from '@/components/SmartListsDropdown';
-import { LocationRemindersMap } from '@/components/LocationRemindersMap';
+import { lazy, Suspense } from 'react';
+const LocationRemindersMap = lazy(() => import('@/components/LocationRemindersMap').then(m => ({ default: m.LocationRemindersMap })));
 import { CalendarBackgroundSheet } from '@/components/CalendarBackgroundSheet';
 import { SubtaskDetailSheet } from '@/components/SubtaskDetailSheet';
 import { usePriorities } from '@/hooks/usePriorities';
@@ -1242,11 +1243,15 @@ const TodoCalendar = () => {
         onSelect={handleSetPriority}
       />
 
-      <LocationRemindersMap
-        open={isLocationMapOpen}
-        onOpenChange={setIsLocationMapOpen}
-        tasks={items.filter(t => t.locationReminder?.enabled)}
-      />
+      {isLocationMapOpen && (
+        <Suspense fallback={null}>
+          <LocationRemindersMap
+            open={isLocationMapOpen}
+            onOpenChange={setIsLocationMapOpen}
+            tasks={items.filter(t => t.locationReminder?.enabled)}
+          />
+        </Suspense>
+      )}
 
       {/* Delete Event Confirmation */}
       <AlertDialog open={!!eventToDelete} onOpenChange={(open) => !open && setEventToDelete(null)}>

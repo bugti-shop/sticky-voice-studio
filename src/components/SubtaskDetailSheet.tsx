@@ -37,8 +37,9 @@ import {
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { LocationReminderSheet } from './LocationReminderSheet';
-import { LocationMapPreview } from './LocationMapPreview';
+import { lazy, Suspense } from 'react';
+const LocationReminderSheet = lazy(() => import('./LocationReminderSheet').then(m => ({ default: m.LocationReminderSheet })));
+const LocationMapPreview = lazy(() => import('./LocationMapPreview').then(m => ({ default: m.LocationMapPreview })));
 import { TaskInputSheet } from './TaskInputSheet';
 import { TaskDateTimePage, RepeatSettings } from './TaskDateTimePage';
 import { TaskTimeTracker } from './TaskTimeTracker';
@@ -557,10 +558,12 @@ export const SubtaskDetailSheet = ({
 
           {/* Location Reminder Preview */}
           {subtask.locationReminder?.enabled && subtask.locationReminder.address && (
-            <LocationMapPreview 
-              location={subtask.locationReminder.address} 
-              onClose={handleRemoveLocationReminder}
-            />
+            <Suspense fallback={null}>
+              <LocationMapPreview 
+                location={subtask.locationReminder.address} 
+                onClose={handleRemoveLocationReminder}
+              />
+            </Suspense>
           )}
         </div>
 
@@ -582,13 +585,17 @@ export const SubtaskDetailSheet = ({
       </div>
 
       {/* Location Reminder Sheet */}
-      <LocationReminderSheet
-        isOpen={showLocationReminder}
-        onClose={() => setShowLocationReminder(false)}
-        locationReminder={subtask.locationReminder}
-        onSave={handleSaveLocationReminder}
-        onRemove={handleRemoveLocationReminder}
-      />
+      {showLocationReminder && (
+        <Suspense fallback={null}>
+          <LocationReminderSheet
+            isOpen={showLocationReminder}
+            onClose={() => setShowLocationReminder(false)}
+            locationReminder={subtask.locationReminder}
+            onSave={handleSaveLocationReminder}
+            onRemove={handleRemoveLocationReminder}
+          />
+        </Suspense>
+      )}
 
       {/* Nested subtask input sheet */}
       <TaskInputSheet

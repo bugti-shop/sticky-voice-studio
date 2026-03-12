@@ -22,8 +22,6 @@ import { CanvasRuler, RulerLine, snapToRuler } from '@/components/CanvasRuler';
 import { SketchVideoPanel, VideoBookmark } from '@/components/SketchVideoPanel';
 import { CanvasProtractor, ProtractorLine, snapToProtractor } from '@/components/CanvasProtractor';
 import { CanvasTriangle, TriangleEdges, snapToTriangle } from '@/components/CanvasTriangle';
-import { Share } from '@capacitor/share';
-import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 
 import { toast } from 'sonner';
@@ -3991,6 +3989,8 @@ export const SketchEditor = memo(({ initialData, onChange, onImageExport, classN
   const nativeSaveAndShare = useCallback(async (base64Data: string, filename: string, mimeType: string, shareOnly = false) => {
     if (Capacitor.isNativePlatform()) {
       try {
+        const { Filesystem, Directory } = await import('@capacitor/filesystem');
+        const { Share } = await import('@capacitor/share');
         const result = await Filesystem.writeFile({
           path: filename,
           data: base64Data,
@@ -4536,6 +4536,8 @@ export const SketchEditor = memo(({ initialData, onChange, onImageExport, classN
           reader.onloadend = async () => {
             const base64 = (reader.result as string).split(',')[1];
             const fileName = `timelapse_${Date.now()}.webm`;
+            const { Filesystem, Directory } = await import('@capacitor/filesystem');
+            const { Share } = await import('@capacitor/share');
             await Filesystem.writeFile({
               path: fileName,
               data: base64,
