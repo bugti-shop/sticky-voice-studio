@@ -375,3 +375,57 @@ export const getTasksStorageInfo = async (): Promise<{ taskCount: number; estima
     estimatedSizeKB: Math.round(jsonString.length / 1024),
   };
 };
+
+// Paged loading with IDBCursor for progressive rendering of large datasets
+export const loadTasksPagedFromDB = async (
+  offset: number,
+  limit: number
+): Promise<{ items: TodoItem[]; hasMore: boolean }> => {
+  // If cache exists and covers the range, use it
+  if (tasksCache !== null) {
+    const slice = tasksCache.slice(offset, offset + limit);
+    return { items: slice, hasMore: offset + limit < tasksCache.length };
+  }
+
+  try {
+    const db = await openDB();
+
+    return new Promise((resolve) => {
+      const transaction = db.transaction(STORE_NAME, 'readonly');
+      const store = transaction.objectStore(STORE_NAME);
+      const results: TodoItem[] = [];
+      let skipped = 0;
+      const cursorRequest = store.openCursor();
+
+      cursorRequest.onsuccess = () => {
+        const cursor = cursorRequest.result;
+        if (!cursor) {
+          resolve({ items: results, hasMore: false });
+          return;
+        }
+
+        if (skipped < offset) {
+          skipped++;
+          cursor.continue();
+          return;
+        }
+
+        if (results.length < limit) {
+          results.push(hydrateItem(cursor.value));
+          cursor.continue();
+        } else {
+          // We have enough, there's more data
+          resolve({ items: results, hasMore: true });
+        }
+      };
+
+      cursorRequest.onerror = () => {
+        console.warn('Cursor paged load failed:', cursorRequest.error);
+        resolve({ items: [], hasMore: false });
+      };
+    });
+  } catch (e) {
+    console.warn('Paged load failed:', e);
+    return { items: [], hasMore: false };
+  }
+};

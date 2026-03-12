@@ -457,7 +457,7 @@ const Today = () => {
   };
 
   return (
-    <TodoLayout title="Npd" searchValue={viewModeSearch} onSearchChange={setViewModeSearch}>
+    <TodoLayout title="Npd" searchValue={viewModeSearch} onSearchChange={(val) => startTransition(() => setViewModeSearch(val))}>
       <main className="container mx-auto px-4 py-3 pb-32">
         <div className="max-w-2xl mx-auto">
           {/* Folders */}
