@@ -376,13 +376,13 @@ export const useTodayState = () => {
 
   const searchFilteredItems = useMemo(() => {
     // If worker already handled search, skip client-side search
-    if (workerResult && worker.isAvailable && viewModeSearch.trim()) return processedItems;
-    if (!viewModeSearch.trim()) return processedItems;
-    const search = viewModeSearch.toLowerCase();
+    if (workerResult && worker.isAvailable && deferredSearch.trim()) return processedItems;
+    if (!deferredSearch.trim()) return processedItems;
+    const search = deferredSearch.toLowerCase();
     return processedItems.filter(item => 
       item.text.toLowerCase().includes(search) || item.description?.toLowerCase().includes(search)
     );
-  }, [processedItems, viewModeSearch, workerResult, worker.isAvailable]);
+  }, [processedItems, deferredSearch, workerResult, worker.isAvailable]);
 
   const uncompletedItems = useMemo(() => searchFilteredItems.filter(item => !item.completed), [searchFilteredItems]);
   const completedItems = useMemo(() => searchFilteredItems.filter(item => item.completed), [searchFilteredItems]);
