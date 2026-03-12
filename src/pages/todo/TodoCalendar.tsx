@@ -169,7 +169,6 @@ const TodoCalendar = () => {
   // Save view mode when changed
   const handleViewModeChange = useCallback(async (mode: ViewMode) => {
     setViewMode(mode);
-    const { setSetting } = await import('@/utils/settingsStorage');
     await setSetting('calendarViewMode', mode);
   }, []);
 
