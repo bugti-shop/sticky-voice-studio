@@ -268,7 +268,7 @@ export const NoteCard = memo(({ note, onEdit, onDelete, onArchive, onTogglePin, 
   const BadgeIcon = badge.icon;
 
   return (
-    <div className="relative overflow-hidden rounded-lg">
+    <div className="relative overflow-hidden rounded-lg perf-contain-item">
       {/* Swipe action backgrounds */}
       <div className="absolute inset-0 flex">
         {/* Left side actions - Favorite + Pin (swipe right reveals) */}
