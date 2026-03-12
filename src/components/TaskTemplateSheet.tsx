@@ -148,11 +148,9 @@ export const TaskTemplateSheet = ({ isOpen, onClose, onSelectTemplate }: TaskTem
 
   // Load custom templates from IndexedDB
   useEffect(() => {
-    import('@/utils/settingsStorage').then(({ getSetting }) => {
-      getSetting<TaskTemplate[]>('customTaskTemplates', []).then(templates => {
-        setCustomTemplates(templates);
-        setIsLoaded(true);
-      });
+    getSetting<TaskTemplate[]>('customTaskTemplates', []).then(templates => {
+      setCustomTemplates(templates);
+      setIsLoaded(true);
     });
   }, []);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
