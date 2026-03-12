@@ -34,7 +34,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { getSuggestedFolders } from '@/utils/personalization';
+
 import { triggerHaptic } from '@/utils/haptics';
 import { saveNoteToDBSingle, deleteNoteFromDB, saveNotesToDB } from '@/utils/noteStorage';
 import { getSetting, setSetting } from '@/utils/settingsStorage';
