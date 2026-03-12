@@ -68,6 +68,7 @@ export const useTodayState = () => {
   const [compactMode, setCompactMode] = useState(false);
   const [groupByOption, setGroupByOption] = useState<'none' | 'section' | 'priority' | 'date'>('none');
   const [viewModeSearch, setViewModeSearch] = useState('');
+  const deferredSearch = useDeferredValue(viewModeSearch);
   const [dropdownView, setDropdownView] = useState<'main' | 'smartLists' | 'sortBy' | 'groupBy'>('main');
 
   // Sheet states
