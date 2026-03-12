@@ -23,7 +23,7 @@ import { createNativeBackup, isNativePlatform } from '@/utils/nativeBackup';
 import { BackupSuccessDialog } from '@/components/BackupSuccessDialog';
 
 import { Capacitor } from '@capacitor/core';
-import appLogo from '@/assets/app-logo.png';
+import appLogo from '@/assets/app-logo.webp';
 import {
   Dialog,
   DialogContent,

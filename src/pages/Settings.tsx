@@ -1,6 +1,6 @@
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { ChevronRight, Crown } from 'lucide-react';
-import appLogo from '@/assets/app-logo.png';
+import appLogo from '@/assets/app-logo.webp';
 import { useSettingsPageState } from '@/hooks/useSettingsPageState';
 import { SettingsDialogs } from '@/components/settings/SettingsDialogs';
 import { SettingsSheets } from '@/components/settings/SettingsSheets';

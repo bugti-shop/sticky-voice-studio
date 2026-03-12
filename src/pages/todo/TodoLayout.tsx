@@ -8,7 +8,7 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { TodoBottomNavigation } from '@/components/TodoBottomNavigation';
 import { SyncStatusButton } from '@/components/SyncStatusButton';
 import { useDarkMode } from '@/hooks/useDarkMode';
-import appLogo from '@/assets/app-logo.png';
+import appLogo from '@/assets/app-logo.webp';
 import { triggerHaptic } from '@/utils/haptics';
 
 interface TodoLayoutProps {

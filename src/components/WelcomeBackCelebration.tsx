@@ -2,9 +2,9 @@ import { m as motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Heart, Sparkles } from 'lucide-react';
 import type { RetentionMood } from '@/hooks/useRetentionLogo';
-import defaultLogo from '@/assets/app-logo.png';
-import sadLogo from '@/assets/sad-logo.png';
-import angryLogo from '@/assets/angry-logo.png';
+import defaultLogo from '@/assets/app-logo.webp';
+import sadLogo from '@/assets/sad-logo.webp';
+import angryLogo from '@/assets/angry-logo.webp';
 import { useState } from 'react';
 
 interface WelcomeBackCelebrationProps {
