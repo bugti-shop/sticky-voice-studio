@@ -676,7 +676,7 @@ export const TaskInputSheet = ({ isOpen, onClose, onAddTask, folders, selectedFo
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const { saveTaskMedia, makeTaskMediaRef } = await import('@/utils/taskMediaStorage');
+    
     
     for (const file of Array.from(files)) {
       const reader = new FileReader();
