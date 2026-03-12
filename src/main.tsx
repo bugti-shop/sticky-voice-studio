@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
+import { migrateLocalStorageToIndexedDB, getSetting } from "./utils/settingsStorage";
 
 // No loading screen - render nothing during suspense for instant feel
 const EmptyFallback = () => null;
