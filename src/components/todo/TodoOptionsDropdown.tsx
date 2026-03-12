@@ -11,23 +11,23 @@ import { loadCustomSmartViews } from '@/utils/customSmartViews';
 
 interface TodoOptionsDropdownProps {
   dropdownView: string;
-  setDropdownView: (view: string) => void;
+  setDropdownView: (view: any) => void;
   requireFeature: (feature: string) => boolean;
   isPro: boolean;
   smartList: string;
-  setSmartList: (id: string) => void;
+  setSmartList: (id: any) => void;
   smartListData: { smartLists: any[]; getCounts: Record<string, number> };
   customSmartViews: any[];
   setCustomSmartViews: (views: any[]) => void;
   activeCustomViewId: string | null;
   setActiveCustomViewId: (id: string | null) => void;
-  setDateFilter: (v: string) => void;
-  setPriorityFilter: (v: string) => void;
-  setStatusFilter: (v: string) => void;
+  setDateFilter: (v: any) => void;
+  setPriorityFilter: (v: any) => void;
+  setStatusFilter: (v: any) => void;
   setTagFilter: (v: string[]) => void;
   setSelectedFolderId: (v: string | null) => void;
   sortBy: string;
-  setSortBy: (v: string) => void;
+  setSortBy: (v: any) => void;
   showCompleted: boolean;
   setShowCompleted: (v: boolean) => void;
   hideDetailsOptions: { hideDateTime: boolean; hideStatus: boolean; hideSubtasks: boolean };
@@ -36,7 +36,7 @@ interface TodoOptionsDropdownProps {
   setCompactMode: (v: boolean) => void;
   setIsTaskOptionsOpen: (v: boolean) => void;
   groupByOption: string;
-  setGroupByOption: (v: string) => void;
+  setGroupByOption: (v: any) => void;
   setIsFilterSheetOpen: (v: boolean) => void;
   setIsDuplicateSheetOpen: (v: boolean) => void;
   setIsBatchTaskOpen: (v: boolean) => void;
@@ -45,7 +45,7 @@ interface TodoOptionsDropdownProps {
   setIsSelectionMode: (v: boolean) => void;
   setIsSelectActionsOpen: (v: boolean) => void;
   viewMode: string;
-  setViewMode: (v: string) => void;
+  setViewMode: (v: any) => void;
 }
 
 export const TodoOptionsDropdown = ({
