@@ -341,7 +341,7 @@ export const GamificationCertificates = ({ isOpen, onClose, streakData }: Certif
       const exportWidth = Math.round(element.offsetWidth);
       const exportHeight = Math.round(element.offsetHeight);
 
-      const canvas = await html2canvas(element, {
+      const canvas = await lazyHtml2canvas(element, {
         backgroundColor: null,
         useCORS: true,
         logging: false,

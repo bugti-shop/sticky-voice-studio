@@ -109,7 +109,7 @@ export const StreakMilestoneCelebration = () => {
     triggerHaptic('medium').catch(() => {});
 
     try {
-      const canvas = await html2canvas(shareCardRef.current, {
+      const canvas = await lazyHtml2canvas(shareCardRef.current, {
         backgroundColor: null,
         scale: 3,
         useCORS: true,

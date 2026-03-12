@@ -106,7 +106,7 @@ export const JourneyCertificate = ({ open, onClose, journey, progress }: Journey
 
     try {
       const element = cardRef.current;
-      const canvas = await html2canvas(element, {
+      const canvas = await lazyHtml2canvas(element, {
         backgroundColor: null,
         useCORS: true,
         logging: false,
