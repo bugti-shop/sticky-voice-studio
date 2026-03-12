@@ -302,7 +302,7 @@ export const useTodayState = () => {
         if (result) setWorkerResult(result);
       });
     }
-  }, [items, smartList, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, sortBy, viewModeSearch]);
+  }, [items, smartList, selectedFolderId, priorityFilter, statusFilter, dateFilter, tagFilter, sortBy, deferredSearch]);
 
   // Main-thread fallback (used when worker hasn't returned yet or is unavailable)
   const processedItemsFallback = useMemo(() => {
