@@ -538,29 +538,23 @@ const HabitStatsContent = ({ habit, onDelete, onUpdateReminder }: {
           <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-1.5">
             <BarChart3 className="h-4 w-4" /> Weekly Trend
           </h3>
-          <div className="h-40 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <XAxis
-                  dataKey="week"
-                  tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  domain={[0, 100]}
-                  tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={30}
-                />
-                <Bar dataKey="rate" radius={[4, 4, 0, 0]}>
-                  {chartData.map((_, i) => (
-                    <Cell key={i} fill={habit.color} opacity={0.8} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-40 w-full flex items-end gap-1.5 px-1">
+            {chartData.map((d, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                <div className="w-full flex-1 flex items-end">
+                  <div
+                    className="w-full rounded-t-[4px] transition-all duration-300"
+                    style={{
+                      height: `${d.rate}%`,
+                      backgroundColor: habit.color,
+                      opacity: 0.8,
+                      minHeight: d.rate > 0 ? 4 : 0,
+                    }}
+                  />
+                </div>
+                <span className="text-[10px] text-muted-foreground">{d.week}</span>
+              </div>
+            ))}
           </div>
         </div>
 
