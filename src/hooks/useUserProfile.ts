@@ -9,7 +9,7 @@ export interface UserProfile {
 
 const PROFILE_KEY = 'npd_user_profile';
 
-const DEFAULT_PROFILE: UserProfile = { name: '', avatarUrl: '' };
+const DEFAULT_PROFILE: UserProfile = { name: '', avatarUrl: '', coverUrl: '' };
 
 export const loadUserProfile = async (): Promise<UserProfile> => {
   return getSetting<UserProfile>(PROFILE_KEY, DEFAULT_PROFILE);
