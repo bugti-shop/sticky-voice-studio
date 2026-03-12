@@ -16,7 +16,8 @@ import { getTableStyles, TableStyle } from './TableEditor';
 import { InlineFindReplace } from './InlineFindReplace';
 
 import { VirtualizedCodeEditor } from './VirtualizedCodeEditor';
-import { SketchEditor } from './SketchEditor';
+import { lazy, Suspense } from 'react';
+const SketchEditor = lazy(() => import('./SketchEditor').then(m => ({ default: m.SketchEditor ?? m.default })));
 import { SketchNotebookLibrary } from './SketchNotebookLibrary';
 import { TemplateSelector } from './TemplateSelector';
 import { NoteVersionHistorySheet } from './NoteVersionHistorySheet';
