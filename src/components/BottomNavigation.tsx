@@ -1,10 +1,11 @@
-import { startTransition, useCallback } from 'react';
+import { startTransition, useCallback, useEffect } from 'react';
 import { Home, FileText, Calendar, User, Settings } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTranslation } from 'react-i18next';
 import { useCustomNavigation, NavItem } from './CustomizeNavigationSheet';
+import { prefetchRoute, prefetchAllOnIdle } from '@/utils/routePrefetch';
 
 const triggerNavHaptic = () => {
   triggerHaptic('heavy').catch(() => {});
@@ -19,13 +20,16 @@ const ICON_COMPONENTS: Record<string, React.ComponentType<{ className?: string }
   User,
 };
 
-// Main pages are eagerly loaded - no preloading needed
-
+// Prefetch all lazy routes when browser is idle
+// (runs once per app session)
 export const BottomNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const customNavItems = useCustomNavigation();
+
+  // Prefetch all routes on idle after mount
+  useEffect(() => { prefetchAllOnIdle(); }, []);
 
   // Get display label - use custom label if set, otherwise translate
   const getDisplayLabel = (item: NavItem) => {
@@ -66,6 +70,8 @@ export const BottomNavigation = () => {
               type="button"
               data-tour={`${item.id}-link`}
               onClick={() => handleNavigation(item.path)}
+              onPointerEnter={() => prefetchRoute(item.path)}
+              onTouchStart={() => prefetchRoute(item.path)}
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 transition-colors min-w-0 px-0.5 touch-target touch-manipulation select-none",
                 isActive ? "text-primary" : "text-muted-foreground"

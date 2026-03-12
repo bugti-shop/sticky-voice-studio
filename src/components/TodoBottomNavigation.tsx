@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTranslation } from 'react-i18next';
 import { getSetting } from '@/utils/settingsStorage';
+import { prefetchRoute } from '@/utils/routePrefetch';
 
 const triggerNavHaptic = () => {
   triggerHaptic('heavy').catch(() => {});
@@ -112,6 +113,8 @@ export const TodoBottomNavigation = () => {
               type="button"
               data-tour={`todo-${item.id}-link`}
               onClick={() => handleNavigation(item.path)}
+              onPointerEnter={() => prefetchRoute(item.path)}
+              onTouchStart={() => prefetchRoute(item.path)}
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 sm:gap-1 transition-colors min-w-0 px-1 touch-target touch-manipulation select-none",
                 isActive ? "text-primary" : "text-muted-foreground"
