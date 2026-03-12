@@ -3,6 +3,7 @@
  * Extracts all useState declarations and settings persistence from Today.tsx
  */
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTaskWorker, FilterSortResult } from '@/hooks/useTaskWorker';
 import { TodoItem, Folder, Priority, TaskSection, TaskStatus } from '@/types/note';
 import { useTranslation } from 'react-i18next';
 import { useGlobalTags } from '@/hooks/useGlobalTags';
