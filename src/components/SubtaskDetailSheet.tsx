@@ -558,10 +558,12 @@ export const SubtaskDetailSheet = ({
 
           {/* Location Reminder Preview */}
           {subtask.locationReminder?.enabled && subtask.locationReminder.address && (
-            <LocationMapPreview 
-              location={subtask.locationReminder.address} 
-              onClose={handleRemoveLocationReminder}
-            />
+            <Suspense fallback={null}>
+              <LocationMapPreview 
+                location={subtask.locationReminder.address} 
+                onClose={handleRemoveLocationReminder}
+              />
+            </Suspense>
           )}
         </div>
 
