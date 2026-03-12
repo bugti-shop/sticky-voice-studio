@@ -29,6 +29,12 @@ import { loadCustomSmartViews } from '@/utils/customSmartViews';
 import { useTodayState } from '@/hooks/useTodayState';
 import { useTodayActions } from '@/hooks/useTodayActions';
 import { TodaySheets } from '@/components/todo/TodaySheets';
+import { useVoicePlayback } from '@/hooks/useVoicePlayback';
+import { useTaskSwipe } from '@/hooks/useTaskSwipe';
+import { TimelineView } from '@/components/todo/TimelineView';
+import { ProgressView } from '@/components/todo/ProgressView';
+import { PriorityView } from '@/components/todo/PriorityView';
+import { HistoryView } from '@/components/todo/HistoryView';
 
 const Today = () => {
   const { t } = useTranslation();
@@ -119,185 +125,19 @@ const Today = () => {
     updateSubtask, deleteSubtask,
   } = actions;
 
-  // ── View-specific local state (voice playback, flat swipe) ──
-  const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
-  const [voiceProgress, setVoiceProgress] = useState(0);
-  const [voiceCurrentTime, setVoiceCurrentTime] = useState(0);
-  const [voiceDuration, setVoiceDuration] = useState<Record<string, number>>({});
-  const [voicePlaybackSpeed, setVoicePlaybackSpeed] = useState(1);
-  const [resolvedVoiceUrls, setResolvedVoiceUrls] = useState<Record<string, string>>({});
-  const flatAudioRef = useRef<HTMLAudioElement | null>(null);
-  const VOICE_PLAYBACK_SPEEDS = [0.5, 1, 1.5, 2];
+  // ── Voice playback (extracted hook) ──
+  const voice = useVoicePlayback();
+  const { playingVoiceId, voiceProgress, voiceCurrentTime, voiceDuration, voicePlaybackSpeed, resolvedVoiceUrls, flatAudioRef } = voice;
+  const { formatDuration, handleFlatVoicePlay, cycleVoicePlaybackSpeed, handleVoiceSeek, seekToPercent } = voice;
 
   // Resolve voice URLs
   const voiceItemsKey = items.filter(i => i.voiceRecording?.audioUrl).map(i => i.id).join(',');
-  useMemo(() => {
-    const resolveUrls = async () => {
-      const voiceItems = items.filter(item => item.voiceRecording?.audioUrl);
-      for (const item of voiceItems) {
-        if (item.voiceRecording && !resolvedVoiceUrls[item.id]) {
-          const url = await resolveTaskMediaUrl(item.voiceRecording.audioUrl);
-          if (url) setResolvedVoiceUrls(prev => ({ ...prev, [item.id]: url }));
-        }
-      }
-    };
-    resolveUrls();
-  }, [voiceItemsKey]);
+  useMemo(() => { voice.resolveVoiceUrls(items); }, [voiceItemsKey]);
 
-  // Swipe state for flat view
-  const [swipeState, setSwipeState] = useState<{ id: string; x: number; isSwiping: boolean; snapped?: 'left' | 'right' } | null>(null);
-  const touchStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const SWIPE_THRESHOLD = 60;
-  const SWIPE_ACTION_WIDTH = 60;
-
-  // Subtask swipe state
-  const [subtaskSwipeState, setSubtaskSwipeState] = useState<{ id: string; parentId: string; x: number; isSwiping: boolean } | null>(null);
-  const subtaskTouchStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleFlatVoicePlay = async (item: TodoItem, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!item.voiceRecording) return;
-    if (playingVoiceId === item.id && flatAudioRef.current) {
-      flatAudioRef.current.pause();
-      flatAudioRef.current = null;
-      setPlayingVoiceId(null);
-      setVoiceProgress(0);
-      setVoiceCurrentTime(0);
-      return;
-    }
-    if (flatAudioRef.current) {
-      flatAudioRef.current.pause();
-      flatAudioRef.current = null;
-    }
-    const audioUrl = await resolveTaskMediaUrl(item.voiceRecording.audioUrl);
-    if (!audioUrl) return;
-    const audio = new Audio(audioUrl);
-    audio.playbackRate = voicePlaybackSpeed;
-    flatAudioRef.current = audio;
-    audio.ontimeupdate = () => {
-      if (audio.duration && !isNaN(audio.duration)) {
-        setVoiceProgress((audio.currentTime / audio.duration) * 100);
-        setVoiceCurrentTime(audio.currentTime);
-      }
-    };
-    audio.onloadedmetadata = () => {
-      if (audio.duration && !isNaN(audio.duration)) {
-        setVoiceDuration(prev => ({ ...prev, [item.id]: Math.round(audio.duration) }));
-      }
-    };
-    audio.onended = () => {
-      setPlayingVoiceId(null);
-      setVoiceProgress(0);
-      setVoiceCurrentTime(0);
-      flatAudioRef.current = null;
-    };
-    audio.play();
-    setPlayingVoiceId(item.id);
-  };
-
-  const cycleVoicePlaybackSpeed = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const currentIndex = VOICE_PLAYBACK_SPEEDS.indexOf(voicePlaybackSpeed);
-    const nextIndex = (currentIndex + 1) % VOICE_PLAYBACK_SPEEDS.length;
-    const newSpeed = VOICE_PLAYBACK_SPEEDS[nextIndex];
-    setVoicePlaybackSpeed(newSpeed);
-    if (flatAudioRef.current) flatAudioRef.current.playbackRate = newSpeed;
-  };
-
-  const handleVoiceSeek = (e: React.MouseEvent<HTMLDivElement>, item: TodoItem) => {
-    e.stopPropagation();
-    if (!flatAudioRef.current || playingVoiceId !== item.id) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const percentage = clickX / rect.width;
-    const duration = flatAudioRef.current.duration || voiceDuration[item.id] || item.voiceRecording?.duration || 0;
-    if (duration && !isNaN(duration)) {
-      flatAudioRef.current.currentTime = percentage * duration;
-      setVoiceProgress(percentage * 100);
-      setVoiceCurrentTime(percentage * duration);
-    }
-  };
-
-  const handleFlatTouchStart = (itemId: string, e: React.TouchEvent) => {
-    if (!tasksSettings.swipeToComplete) return;
-    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    setSwipeState({ id: itemId, x: 0, isSwiping: false });
-  };
-
-  const handleFlatTouchMove = (itemId: string, e: React.TouchEvent) => {
-    if (!tasksSettings.swipeToComplete) return;
-    if (!swipeState || swipeState.id !== itemId) return;
-    const deltaX = e.touches[0].clientX - touchStartRef.current.x;
-    const deltaY = Math.abs(e.touches[0].clientY - touchStartRef.current.y);
-    if (deltaY > 30 && !swipeState.isSwiping) return;
-    if (Math.abs(deltaX) > 15) {
-      const maxSwipeRight = SWIPE_ACTION_WIDTH * 2;
-      const maxSwipeLeft = SWIPE_ACTION_WIDTH * 3;
-      const clampedX = Math.max(-maxSwipeLeft, Math.min(maxSwipeRight, deltaX));
-      setSwipeState({ id: itemId, x: clampedX, isSwiping: true });
-    }
-  };
-
-  const handleFlatTouchEnd = async (item: TodoItem) => {
-    if (!tasksSettings.swipeToComplete) return;
-    if (!swipeState || swipeState.id !== item.id) return;
-    const maxSwipeRight = SWIPE_ACTION_WIDTH * 2;
-    const maxSwipeLeft = SWIPE_ACTION_WIDTH * 3;
-    if (swipeState.isSwiping) {
-      if (swipeState.x > SWIPE_THRESHOLD) {
-        try { await Haptics.impact({ style: ImpactStyle.Medium }); } catch {}
-        setSwipeState({ id: item.id, x: maxSwipeRight, isSwiping: false, snapped: 'right' });
-        return;
-      } else if (swipeState.x < -SWIPE_THRESHOLD) {
-        try { await Haptics.impact({ style: ImpactStyle.Medium }); } catch {}
-        setSwipeState({ id: item.id, x: -maxSwipeLeft, isSwiping: false, snapped: 'left' });
-        return;
-      }
-    }
-    setSwipeState(null);
-  };
-
-  const handleSwipeAction = async (action: () => void) => {
-    try { await Haptics.impact({ style: ImpactStyle.Medium }); } catch {}
-    action();
-    setSwipeState(null);
-  };
-
-  const handleSubtaskSwipeStart = (subtaskId: string, parentId: string, e: React.TouchEvent) => {
-    if (!tasksSettings.swipeToComplete) return;
-    subtaskTouchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    setSubtaskSwipeState({ id: subtaskId, parentId, x: 0, isSwiping: false });
-  };
-
-  const handleSubtaskSwipeMove = (subtaskId: string, parentId: string, e: React.TouchEvent) => {
-    if (!tasksSettings.swipeToComplete) return;
-    if (!subtaskSwipeState || subtaskSwipeState.id !== subtaskId) return;
-    const deltaX = e.touches[0].clientX - subtaskTouchStartRef.current.x;
-    const deltaY = Math.abs(e.touches[0].clientY - subtaskTouchStartRef.current.y);
-    if (deltaY < 30) {
-      const clampedX = Math.max(-120, Math.min(120, deltaX));
-      setSubtaskSwipeState({ id: subtaskId, parentId, x: clampedX, isSwiping: true });
-    }
-  };
-
-  const handleSubtaskSwipeEnd = async (subtask: TodoItem, parentId: string) => {
-    if (!tasksSettings.swipeToComplete) return;
-    if (!subtaskSwipeState || subtaskSwipeState.id !== subtask.id) return;
-    if (subtaskSwipeState.x < -SWIPE_THRESHOLD) {
-      try { await Haptics.impact({ style: ImpactStyle.Medium }); } catch {}
-      deleteSubtask(parentId, subtask.id, true);
-    } else if (subtaskSwipeState.x > SWIPE_THRESHOLD) {
-      try { await Haptics.impact({ style: ImpactStyle.Heavy }); } catch {}
-      updateSubtask(parentId, subtask.id, { completed: !subtask.completed });
-    }
-    setSubtaskSwipeState(null);
-  };
+  // ── Swipe handlers (extracted hook) ──
+  const swipe = useTaskSwipe(tasksSettings.swipeToComplete, updateSubtask, deleteSubtask);
+  const { swipeState, SWIPE_ACTION_WIDTH, handleFlatTouchStart, handleFlatTouchMove, handleFlatTouchEnd, handleSwipeAction } = swipe;
+  const { subtaskSwipeState, handleSubtaskSwipeStart, handleSubtaskSwipeMove, handleSubtaskSwipeEnd } = swipe;
 
   // ── Render helpers ──
   const getViewModeIcon = () => {
@@ -445,14 +285,7 @@ const Today = () => {
                           duration={voiceDuration[item.id] || item.voiceRecording.duration}
                           isPlaying={playingVoiceId === item.id}
                           onSeek={(percent) => {
-                            if (flatAudioRef.current && playingVoiceId === item.id) {
-                              const duration = flatAudioRef.current.duration || voiceDuration[item.id] || item.voiceRecording!.duration;
-                              if (duration && !isNaN(duration)) {
-                                flatAudioRef.current.currentTime = (percent / 100) * duration;
-                                setVoiceProgress(percent);
-                                setVoiceCurrentTime((percent / 100) * duration);
-                              }
-                            }
+                            seekToPercent(percent, item);
                           }}
                           height={12}
                         />
@@ -1058,244 +891,62 @@ const Today = () => {
               </div>
             </DragDropContext>
           ) : viewMode === 'timeline' ? (
-            <DragDropContext onDragEnd={(result) => {
-              if (!result.destination) return;
-              const { source, destination, draggableId } = result;
-              const taskId = draggableId;
-              if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-              const today = new Date();
-              if (source.droppableId !== destination.droppableId) {
-                let newDate: Date | undefined;
-                if (destination.droppableId === 'timeline-overdue') newDate = subDays(today, 1);
-                else if (destination.droppableId === 'timeline-today') newDate = today;
-                else if (destination.droppableId === 'timeline-tomorrow') { newDate = new Date(); newDate.setDate(newDate.getDate() + 1); }
-                else if (destination.droppableId === 'timeline-thisweek') { newDate = new Date(); newDate.setDate(newDate.getDate() + 3); }
-                else if (destination.droppableId === 'timeline-later') { newDate = new Date(); newDate.setDate(newDate.getDate() + 14); }
-                else if (destination.droppableId === 'timeline-nodate') newDate = undefined;
-                updateItem(taskId, { dueDate: newDate });
-                Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-                toast.success('Task date updated');
-              }
-              const destGroup = destination.droppableId;
-              const destGroupTasks = items.filter(item => !item.completed).filter(item => {
-                const d = item.dueDate ? new Date(item.dueDate) : null;
-                if (destGroup === 'timeline-overdue') return d && isBefore(d, startOfDay(today));
-                if (destGroup === 'timeline-today') return d && isToday(d);
-                if (destGroup === 'timeline-tomorrow') return d && isTomorrow(d);
-                if (destGroup === 'timeline-thisweek') return d && isThisWeek(d) && !isToday(d) && !isTomorrow(d);
-                if (destGroup === 'timeline-later') return d && !isBefore(d, startOfDay(today)) && !isThisWeek(d);
-                if (destGroup === 'timeline-nodate') return !d;
-                return false;
-              });
-              const ordered = applyTaskOrder(destGroupTasks, destGroup);
-              const ids = ordered.map(t => t.id);
-              const idx = ids.indexOf(taskId);
-              if (idx !== -1) ids.splice(idx, 1);
-              ids.splice(destination.index, 0, taskId);
-              updateSectionOrder(destGroup, ids);
-              setOrderVersion(v => v + 1);
-              Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
-            }}>
-              <div className="space-y-6">
-                {(() => {
-                  const today = startOfDay(new Date());
-                  const timelineGroups = [
-                    { id: 'timeline-overdue', label: t('grouping.overdue'), tasks: uncompletedItems.filter(item => item.dueDate && isBefore(new Date(item.dueDate), today)), color: '#ef4444', icon: <AlertCircle className="h-4 w-4" /> },
-                    { id: 'timeline-today', label: t('grouping.today'), tasks: uncompletedItems.filter(item => item.dueDate && isToday(new Date(item.dueDate))), color: '#3b82f6', icon: <Sun className="h-4 w-4" /> },
-                    { id: 'timeline-tomorrow', label: t('grouping.tomorrow'), tasks: uncompletedItems.filter(item => item.dueDate && isTomorrow(new Date(item.dueDate))), color: '#f59e0b', icon: <CalendarIcon2 className="h-4 w-4" /> },
-                    { id: 'timeline-thisweek', label: t('grouping.thisWeek'), tasks: uncompletedItems.filter(item => item.dueDate && isThisWeek(new Date(item.dueDate)) && !isToday(new Date(item.dueDate)) && !isTomorrow(new Date(item.dueDate))), color: '#10b981', icon: <CalendarIcon2 className="h-4 w-4" /> },
-                    { id: 'timeline-later', label: t('grouping.later'), tasks: uncompletedItems.filter(item => item.dueDate && !isBefore(new Date(item.dueDate), today) && !isThisWeek(new Date(item.dueDate))), color: '#8b5cf6', icon: <Clock className="h-4 w-4" /> },
-                    { id: 'timeline-nodate', label: t('grouping.noDate'), tasks: uncompletedItems.filter(item => !item.dueDate), color: '#6b7280', icon: <CalendarX className="h-4 w-4" /> },
-                  ];
-                  return (<>{timelineGroups.map((group) => {
-                    const isCollapsed = collapsedViewSections.has(group.id);
-                    const orderedTasks = applyTaskOrder(group.tasks, group.id);
-                    return (
-                      <div key={group.id} className="bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                        {renderViewModeSectionHeader(group.label, group.tasks.length, group.color, group.icon, group.id)}
-                        {!isCollapsed && (
-                          <Droppable droppableId={group.id}>
-                            {(provided, snapshot) => (
-                              <div ref={provided.innerRef} {...provided.droppableProps} className={cn("p-2 space-y-2 min-h-[50px]", snapshot.isDraggingOver && "bg-primary/5")}>
-                                {orderedTasks.map((item, index) => (
-                                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                                    {(provided, snapshot) => (
-                                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={cn("bg-card rounded-lg border border-border/50", snapshot.isDragging && "shadow-lg ring-2 ring-primary")}>
-                                        {renderTaskItem(item)}{renderSubtasksInline(item)}
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {provided.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
-                        )}
-                      </div>
-                    );
-                  })}{renderCompletedSectionForViewMode()}</>);
-                })()}
-              </div>
-            </DragDropContext>
+            <TimelineView
+              uncompletedItems={uncompletedItems}
+              completedItems={completedItems}
+              showCompleted={showCompleted}
+              collapsedViewSections={collapsedViewSections}
+              toggleViewSectionCollapse={toggleViewSectionCollapse}
+              renderTaskItem={renderTaskItem}
+              renderSubtasksInline={renderSubtasksInline}
+              renderCompletedSection={renderCompletedSectionForViewMode}
+              onDragEnd={(taskId, destGroup, destIndex, sourceGroup) => {
+                if (sourceGroup !== destGroup) {
+                  const today = new Date();
+                  let newDate: Date | undefined;
+                  if (destGroup === 'timeline-overdue') newDate = subDays(today, 1);
+                  else if (destGroup === 'timeline-today') newDate = today;
+                  else if (destGroup === 'timeline-tomorrow') { newDate = new Date(); newDate.setDate(newDate.getDate() + 1); }
+                  else if (destGroup === 'timeline-thisweek') { newDate = new Date(); newDate.setDate(newDate.getDate() + 3); }
+                  else if (destGroup === 'timeline-later') { newDate = new Date(); newDate.setDate(newDate.getDate() + 14); }
+                  else if (destGroup === 'timeline-nodate') newDate = undefined;
+                  updateItem(taskId, { dueDate: newDate });
+                  Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
+                  toast.success('Task date updated');
+                }
+              }}
+              setOrderVersion={setOrderVersion}
+            />
           ) : viewMode === 'progress' ? (
-            <DragDropContext onDragEnd={(result) => {
-              if (!result.destination) return;
-              const { source, destination } = result;
-              const taskId = result.draggableId;
-              const destGroup = destination.droppableId;
-              if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-              const destGroupTasks = items.filter(item => !item.completed).filter(item => {
-                const hs = item.subtasks && item.subtasks.length > 0;
-                const cs = hs ? item.subtasks!.filter(st => st.completed).length : 0;
-                const ts = hs ? item.subtasks!.length : 0;
-                const cp = hs ? cs / ts : 0;
-                if (destGroup === 'progress-notstarted') return !hs || cs === 0;
-                if (destGroup === 'progress-inprogress') return hs && cs > 0 && cp < 0.75;
-                if (destGroup === 'progress-almostdone') return hs && cp >= 0.75 && cs < ts;
-                return false;
-              });
-              const ordered = applyTaskOrder(destGroupTasks, destGroup);
-              const ids = ordered.map(t => t.id);
-              const idx = ids.indexOf(taskId);
-              if (idx !== -1) ids.splice(idx, 1);
-              ids.splice(destination.index, 0, taskId);
-              updateSectionOrder(destGroup, ids);
-              setOrderVersion(v => v + 1);
-              Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
-            }}>
-              <div className="space-y-6">
-                {(() => {
-                  const notStarted = uncompletedItems.filter(item => !item.subtasks || item.subtasks.length === 0 || item.subtasks.every(st => !st.completed));
-                  const inProgress = uncompletedItems.filter(item => item.subtasks && item.subtasks.length > 0 && item.subtasks.some(st => st.completed) && item.subtasks.some(st => !st.completed));
-                  const almostDone = uncompletedItems.filter(item => item.subtasks && item.subtasks.length > 0 && item.subtasks.filter(st => st.completed).length >= item.subtasks.length * 0.75 && item.subtasks.some(st => !st.completed));
-                  const progressGroups = [
-                    { id: 'progress-notstarted', label: t('grouping.notStarted'), tasks: notStarted.filter(t => !inProgress.includes(t) && !almostDone.includes(t)), color: '#6b7280', percent: '0%' },
-                    { id: 'progress-inprogress', label: t('grouping.inProgress'), tasks: inProgress.filter(t => !almostDone.includes(t)), color: '#f59e0b', percent: '25-74%' },
-                    { id: 'progress-almostdone', label: t('grouping.almostDone'), tasks: almostDone, color: '#10b981', percent: '75%+' },
-                  ];
-                  return (<>{progressGroups.map((group) => {
-                    const isCollapsed = collapsedViewSections.has(group.id);
-                    const orderedTasks = applyTaskOrder(group.tasks, group.id);
-                    return (
-                      <div key={group.id} className="bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                        {renderViewModeSectionHeader(group.label, group.tasks.length, group.color, <TrendingUp className="h-4 w-4" />, group.id, <span className="text-xs text-muted-foreground">{group.percent}</span>)}
-                        {!isCollapsed && (
-                          <Droppable droppableId={group.id}>
-                            {(provided, snapshot) => (
-                              <div ref={provided.innerRef} {...provided.droppableProps} className={cn("p-2 space-y-2 min-h-[50px]", snapshot.isDraggingOver && "bg-primary/5")}>
-                                {orderedTasks.map((item, index) => (
-                                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                                    {(provided, snapshot) => (
-                                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={cn("bg-card rounded-lg border border-border/50 overflow-hidden", snapshot.isDragging && "shadow-lg ring-2 ring-primary")}>
-                                        {renderTaskItem(item)}{renderSubtasksInline(item)}
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {provided.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
-                        )}
-                      </div>
-                    );
-                  })}{renderCompletedSectionForViewMode()}</>);
-                })()}
-              </div>
-            </DragDropContext>
+            <ProgressView
+              uncompletedItems={uncompletedItems}
+              collapsedViewSections={collapsedViewSections}
+              toggleViewSectionCollapse={toggleViewSectionCollapse}
+              renderTaskItem={renderTaskItem}
+              renderSubtasksInline={renderSubtasksInline}
+              renderCompletedSection={renderCompletedSectionForViewMode}
+              setOrderVersion={setOrderVersion}
+            />
           ) : viewMode === 'priority' ? (
-            <DragDropContext onDragEnd={(result) => {
-              if (!result.destination) return;
-              const { source, destination, draggableId } = result;
-              const taskId = draggableId;
-              const destGroup = destination.droppableId;
-              if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-              if (source.droppableId !== destGroup) {
-                let newPriority: Priority = 'none';
-                if (destGroup === 'priority-high') newPriority = 'high';
-                else if (destGroup === 'priority-medium') newPriority = 'medium';
-                else if (destGroup === 'priority-low') newPriority = 'low';
-                updateItem(taskId, { priority: newPriority });
-                Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-                toast.success(t('todayPage.priorityUpdated'));
-              }
-              const destGroupTasks = items.filter(item => !item.completed).filter(item => {
-                if (destGroup === 'priority-high') return item.priority === 'high';
-                if (destGroup === 'priority-medium') return item.priority === 'medium';
-                if (destGroup === 'priority-low') return item.priority === 'low';
-                if (destGroup === 'priority-none') return !item.priority || item.priority === 'none';
-                return false;
-              });
-              const ordered = applyTaskOrder(destGroupTasks, destGroup);
-              const ids = ordered.map(t => t.id);
-              const idx = ids.indexOf(taskId);
-              if (idx !== -1) ids.splice(idx, 1);
-              ids.splice(destination.index, 0, taskId);
-              updateSectionOrder(destGroup, ids);
-              setOrderVersion(v => v + 1);
-              Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
-            }}>
-              <div className="space-y-6">
-                {(() => {
-                  const priorityGroups = [
-                    { id: 'priority-high', label: t('grouping.highPriority', 'High Priority'), tasks: uncompletedItems.filter(i => i.priority === 'high'), color: getPriorityColor('high'), icon: <Flame className="h-4 w-4" style={{ color: getPriorityColor('high') }} /> },
-                    { id: 'priority-medium', label: t('grouping.mediumPriority', 'Medium Priority'), tasks: uncompletedItems.filter(i => i.priority === 'medium'), color: getPriorityColor('medium'), icon: <Flag className="h-4 w-4" style={{ color: getPriorityColor('medium') }} /> },
-                    { id: 'priority-low', label: t('grouping.lowPriority', 'Low Priority'), tasks: uncompletedItems.filter(i => i.priority === 'low'), color: getPriorityColor('low'), icon: <Flag className="h-4 w-4" style={{ color: getPriorityColor('low') }} /> },
-                    { id: 'priority-none', label: t('grouping.noPriority', 'No Priority'), tasks: uncompletedItems.filter(i => !i.priority || i.priority === 'none'), color: getPriorityColor('none'), icon: <Flag className="h-4 w-4" style={{ color: getPriorityColor('none') }} /> },
-                  ];
-                  return (<>{priorityGroups.map((group) => {
-                    const isCollapsed = collapsedViewSections.has(group.id);
-                    const orderedTasks = applyTaskOrder(group.tasks, group.id);
-                    return (
-                      <div key={group.id} className="bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                        {renderViewModeSectionHeader(group.label, group.tasks.length, group.color, group.icon, group.id)}
-                        {!isCollapsed && (
-                          <Droppable droppableId={group.id}>
-                            {(provided, snapshot) => (
-                              <div ref={provided.innerRef} {...provided.droppableProps} className={cn("p-2 space-y-2 min-h-[50px]", snapshot.isDraggingOver && "bg-primary/5")}>
-                                {orderedTasks.map((item, index) => (
-                                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                                    {(provided, snapshot) => (
-                                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={cn("bg-card rounded-lg border border-border/50 overflow-hidden", snapshot.isDragging && "shadow-lg ring-2 ring-primary")}>
-                                        {renderTaskItem(item)}{renderSubtasksInline(item)}
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {provided.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
-                        )}
-                      </div>
-                    );
-                  })}{renderCompletedSectionForViewMode()}</>);
-                })()}
-              </div>
-            </DragDropContext>
+            <PriorityView
+              uncompletedItems={uncompletedItems}
+              collapsedViewSections={collapsedViewSections}
+              toggleViewSectionCollapse={toggleViewSectionCollapse}
+              renderTaskItem={renderTaskItem}
+              renderSubtasksInline={renderSubtasksInline}
+              renderCompletedSection={renderCompletedSectionForViewMode}
+              updateItem={updateItem}
+              getPriorityColor={getPriorityColor}
+              items={items}
+              setOrderVersion={setOrderVersion}
+            />
           ) : viewMode === 'history' ? (
-            <div className="space-y-6">
-              {(() => {
-                const historyGroups = [
-                  { label: t('grouping.completedToday', 'Completed Today'), tasks: completedItems.filter(item => item.dueDate && isToday(new Date(item.dueDate))), color: '#10b981' },
-                  { label: t('grouping.completedYesterday', 'Completed Yesterday'), tasks: completedItems.filter(item => item.dueDate && isYesterday(new Date(item.dueDate))), color: '#3b82f6' },
-                  { label: t('grouping.thisWeek', 'This Week'), tasks: completedItems.filter(item => item.dueDate && isThisWeek(new Date(item.dueDate)) && !isToday(new Date(item.dueDate)) && !isYesterday(new Date(item.dueDate))), color: '#8b5cf6' },
-                  { label: t('grouping.older', 'Older'), tasks: completedItems.filter(item => !item.dueDate || (!isThisWeek(new Date(item.dueDate)))), color: '#6b7280' },
-                ];
-                return historyGroups.filter(g => g.tasks.length > 0).length === 0 ? (
-                  <div className="text-center py-20"><History className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" /><p className="text-muted-foreground">{t('emptyStates.noCompletedTasks')}</p></div>
-                ) : (<>{historyGroups.filter(g => g.tasks.length > 0).map((group) => {
-                  const sectionId = `history-${group.label.toLowerCase().replace(/\s+/g, '-')}`;
-                  const isCollapsed = collapsedViewSections.has(sectionId);
-                  return (
-                    <div key={group.label} className="bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
-                      {renderViewModeSectionHeader(group.label, group.tasks.length, group.color, <CheckCircle2 className="h-4 w-4" />, sectionId)}
-                      {!isCollapsed && <div className="p-2 space-y-2">{group.tasks.map((item) => (<div key={item.id} className="bg-card rounded-lg border border-border/50 opacity-70">{renderTaskItem(item)}</div>))}</div>}
-                    </div>
-                  );
-                })}</>);
-              })()}
-            </div>
+            <HistoryView
+              completedItems={completedItems}
+              collapsedViewSections={collapsedViewSections}
+              toggleViewSectionCollapse={toggleViewSectionCollapse}
+              renderTaskItem={renderTaskItem}
+            />
           ) : groupByOption !== 'none' ? (
             <DragDropContext onDragEnd={(result) => {
               if (!result.destination) return;
