@@ -19,7 +19,8 @@ import { MoveToFolderSheet } from '@/components/MoveToFolderSheet';
 import { PrioritySelectSheet } from '@/components/PrioritySelectSheet';
 import { TaskItem } from '@/components/TaskItem';
 import { SmartListsDropdown, SmartListType, getSmartListFilter } from '@/components/SmartListsDropdown';
-import { LocationRemindersMap } from '@/components/LocationRemindersMap';
+import { lazy, Suspense } from 'react';
+const LocationRemindersMap = lazy(() => import('@/components/LocationRemindersMap').then(m => ({ default: m.LocationRemindersMap ?? m.default })));
 
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
