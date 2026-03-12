@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense } from 'react';
 import { m as motion, AnimatePresence } from 'framer-motion';
 import { Award, Share2, Edit3, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,7 +20,7 @@ import { shareImageBlob } from '@/utils/shareImage';
 import { playAchievementSound } from '@/utils/gamificationSounds';
 import { toast } from 'sonner';
 import { MedalBadge, MEDAL_COLORS, RarityIcon } from '@/components/MedalBadge';
-import { QRCodeSVG } from 'qrcode.react';
+const QRCodeSVG = lazy(() => import('qrcode.react').then(m => ({ default: m.QRCodeSVG })));
 
 
 const RARITY_ORDER: BadgeRarity[] = ['legendary', 'epic', 'rare', 'uncommon', 'common'];

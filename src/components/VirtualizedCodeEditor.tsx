@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { ArrowLeft, Copy, Check, ChevronDown, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import { toast } from 'sonner';
-import 'highlight.js/styles/github-dark.css';
+// highlight.js CSS is loaded dynamically below to avoid bundling in initial chunks
 import { sanitizeCodeHtml } from '@/lib/sanitize';
 import {
   DropdownMenu,
