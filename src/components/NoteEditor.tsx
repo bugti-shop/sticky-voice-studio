@@ -1764,7 +1764,7 @@ export const NoteEditor = ({ note, isOpen, onClose, onSave, defaultType = 'regul
           ) : noteType === 'sketch' ? (
             <div className="flex h-full relative">
               <div className="flex-1 relative">
-                <Suspense fallback={null}>
+                <Suspense fallback={<div className="flex-1 flex items-center justify-center h-full bg-background" />}>
                   <SketchEditor
                     initialData={content}
                     onChange={setContent}
