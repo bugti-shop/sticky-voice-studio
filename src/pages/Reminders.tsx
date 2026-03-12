@@ -1,6 +1,7 @@
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import appLogo from '@/assets/app-logo.webp';
 
 const Reminders = () => {
   const { t } = useTranslation();
