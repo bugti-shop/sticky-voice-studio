@@ -1,5 +1,5 @@
 import { Note, SyncStatus } from '@/types/note';
-import { getSetting } from '@/utils/settingsStorage';
+import { getSetting, setSetting } from '@/utils/settingsStorage';
 
 // Get or create device ID for this device
 let cachedDeviceId: string | null = null;
