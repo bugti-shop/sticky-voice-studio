@@ -172,7 +172,7 @@ const NotesCalendar = () => {
             <h2 className="text-lg font-semibold text-foreground py-2 flex-shrink-0">
               {format(date || new Date(), 'MMMM dd, yyyy')}
             </h2>
-            <ScrollArea className="flex-1">
+            <ScrollArea className="flex-1 perf-contain-scroll">
               <div className="space-y-3 pb-4">
                 {selectedDateNotes.map((note) => (
                   <NoteCard

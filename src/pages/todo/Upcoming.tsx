@@ -486,7 +486,7 @@ const Upcoming = () => {
               <p className="text-muted-foreground">{t('upcoming.noUpcomingTasks')}</p>
             </div>
           ) : (
-            <ScrollArea className="h-[calc(100vh-320px)]">
+            <ScrollArea className="h-[calc(100vh-320px)] perf-contain-scroll">
               <DragDropContext onDragEnd={handleDragEnd}>
                 {Object.entries(groupedTasks).map(([groupName, groupItems]) => (
                   <div key={groupName} className="space-y-2 mb-6">
