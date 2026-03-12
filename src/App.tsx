@@ -59,6 +59,30 @@ let hasResolvedInitialDashboard = false;
 // No loading screen - render nothing for instant feel
 const EmptyFallback = () => null;
 
+// Detect stale chunk errors and auto-reload once
+const isChunkError = (error: any): boolean => {
+  const msg = String(error?.message || error || '');
+  return (
+    msg.includes('Failed to fetch dynamically imported module') ||
+    msg.includes('Importing a module script failed') ||
+    msg.includes('error loading dynamically imported module') ||
+    msg.includes('Loading chunk') ||
+    msg.includes('Loading CSS chunk')
+  );
+};
+
+const handleChunkError = () => {
+  const key = 'chunk_reload_ts';
+  const last = Number(sessionStorage.getItem(key) || 0);
+  // Only auto-reload once per 30 seconds to avoid infinite loops
+  if (Date.now() - last > 30_000) {
+    sessionStorage.setItem(key, String(Date.now()));
+    window.location.reload();
+    return true;
+  }
+  return false;
+};
+
 // Global error handler for unhandled errors (prevents white screen on mobile)
 if (typeof window !== 'undefined') {
   // Show user-friendly toast for unhandled errors instead of silent crashes
@@ -73,12 +97,20 @@ if (typeof window !== 'undefined') {
   };
 
   window.onerror = (message, source, lineno, colno, error) => {
+    if (isChunkError(error || message)) {
+      if (handleChunkError()) return true;
+    }
     console.error('Global error:', { message, source, lineno, colno, error });
     showGlobalError(error || message);
     return false;
   };
   
   window.onunhandledrejection = (event) => {
+    // Auto-reload on stale chunk imports
+    if (isChunkError(event?.reason)) {
+      event.preventDefault();
+      if (handleChunkError()) return;
+    }
     // Suppress "not implemented" errors from Capacitor plugins (web + android + ios)
     const msg = String(event?.reason?.message || event?.reason || '');
     if (msg.includes('not implemented') || msg.includes('UNIMPLEMENTED') || msg.includes('not available')) {
