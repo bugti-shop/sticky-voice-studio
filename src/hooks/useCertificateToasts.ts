@@ -99,7 +99,6 @@ export const useCertificateToasts = () => {
           const top = sorted[0];
           const meta = CERT_META[top];
           if (meta) {
-            const { playAchievementSound } = await import('@/utils/gamificationSounds');
             playAchievementSound();
 
             toast({

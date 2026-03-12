@@ -187,7 +187,6 @@ export const TodoOptionsDropdown = ({
                       <span className="truncate" style={{ color: view.color }}>{view.name}</span>
                       <button onClick={async (e) => {
                         e.stopPropagation();
-                        const { deleteCustomSmartView } = await import('@/utils/customSmartViews');
                         await deleteCustomSmartView(view.id);
                         loadCustomSmartViews().then(setCustomSmartViews);
                         if (activeCustomViewId === view.id) setActiveCustomViewId(null);

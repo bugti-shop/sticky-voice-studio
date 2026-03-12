@@ -60,14 +60,12 @@ const Index = () => {
   // Load feature visibility
   useEffect(() => {
     const loadFeatureVisibility = async () => {
-      const { getVisibleFeatures } = await import('@/utils/noteTypeVisibility');
       const features = await getVisibleFeatures();
       setShowNoteTemplates(features.includes('noteTemplates'));
     };
     loadFeatureVisibility();
     
     const handleChange = async () => {
-      const { getVisibleFeatures } = await import('@/utils/noteTypeVisibility');
       const features = await getVisibleFeatures();
       setShowNoteTemplates(features.includes('noteTemplates'));
     };
