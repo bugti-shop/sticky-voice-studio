@@ -26,8 +26,6 @@ import { StreakMilestoneCelebration } from "@/components/StreakMilestoneCelebrat
 import { StreakTierCelebration } from "@/components/StreakTierCelebration";
 import { SmartReviewPrompt } from "@/components/SmartReviewPrompt";
 
-import { WelcomeBackCelebration } from "@/components/WelcomeBackCelebration";
-import { useRetentionLogo } from "@/hooks/useRetentionLogo";
 import { ComboOverlay } from "@/components/ComboOverlay";
 // Eager load only the two most critical pages for instant first render
 import Index from "./pages/Index";
