@@ -29,7 +29,9 @@ export default function Profile() {
   const [lastSync, setLastSync] = useState<SyncMeta | null>(null);
   const { profile, updateProfile } = useUserProfile();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const [coverCropSrc, setCoverCropSrc] = useState<string | null>(null);
 
   useEffect(() => {
     getLastSyncInfo().then(setLastSync);
