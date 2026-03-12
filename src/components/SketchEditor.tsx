@@ -22,8 +22,6 @@ import { CanvasRuler, RulerLine, snapToRuler } from '@/components/CanvasRuler';
 import { SketchVideoPanel, VideoBookmark } from '@/components/SketchVideoPanel';
 import { CanvasProtractor, ProtractorLine, snapToProtractor } from '@/components/CanvasProtractor';
 import { CanvasTriangle, TriangleEdges, snapToTriangle } from '@/components/CanvasTriangle';
-import { Share } from '@capacitor/share';
-import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 
 import { toast } from 'sonner';

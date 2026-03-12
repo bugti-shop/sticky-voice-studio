@@ -654,11 +654,15 @@ const Upcoming = () => {
         onSelect={handleSetPriority}
       />
       
-      <LocationRemindersMap
-        open={isLocationMapOpen}
-        onOpenChange={setIsLocationMapOpen}
-        tasks={items}
-      />
+      {isLocationMapOpen && (
+        <Suspense fallback={null}>
+          <LocationRemindersMap
+            open={isLocationMapOpen}
+            onOpenChange={setIsLocationMapOpen}
+            tasks={items}
+          />
+        </Suspense>
+      )}
       
     </TodoLayout>
   );

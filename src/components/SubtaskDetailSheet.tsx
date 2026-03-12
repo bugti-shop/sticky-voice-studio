@@ -585,13 +585,17 @@ export const SubtaskDetailSheet = ({
       </div>
 
       {/* Location Reminder Sheet */}
-      <LocationReminderSheet
-        isOpen={showLocationReminder}
-        onClose={() => setShowLocationReminder(false)}
-        locationReminder={subtask.locationReminder}
-        onSave={handleSaveLocationReminder}
-        onRemove={handleRemoveLocationReminder}
-      />
+      {showLocationReminder && (
+        <Suspense fallback={null}>
+          <LocationReminderSheet
+            isOpen={showLocationReminder}
+            onClose={() => setShowLocationReminder(false)}
+            locationReminder={subtask.locationReminder}
+            onSave={handleSaveLocationReminder}
+            onRemove={handleRemoveLocationReminder}
+          />
+        </Suspense>
+      )}
 
       {/* Nested subtask input sheet */}
       <TaskInputSheet
