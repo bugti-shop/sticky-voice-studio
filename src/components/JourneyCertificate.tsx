@@ -7,7 +7,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { triggerHaptic } from '@/utils/haptics';
 import { QRCodeSVG } from 'qrcode.react';
 import { format } from 'date-fns';
-import html2canvas from 'html2canvas';
+import { lazyHtml2canvas } from '@/utils/lazyHtml2canvas';
 
 import { shareImageBlob } from '@/utils/shareImage';
 

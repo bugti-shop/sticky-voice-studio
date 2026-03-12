@@ -22,8 +22,8 @@ import { loadFolders } from '@/utils/folderStorage';
 import { StreakData } from '@/utils/streakStorage';
 import { getSetting, setSetting } from '@/utils/settingsStorage';
 import { format } from 'date-fns';
-import html2canvas from 'html2canvas';
-import Confetti from 'react-confetti';
+import { lazyHtml2canvas } from '@/utils/lazyHtml2canvas';
+import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
 import { shareImageBlob } from '@/utils/shareImage';

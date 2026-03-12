@@ -9,9 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, X, Instagram, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { triggerHaptic, triggerNotificationHaptic } from '@/utils/haptics';
-import Confetti from 'react-confetti';
+import { LazyConfetti as Confetti } from '@/components/LazyConfetti';
 import appLogo from '@/assets/npd-reminder-logo.png';
-import html2canvas from 'html2canvas';
+import { lazyHtml2canvas } from '@/utils/lazyHtml2canvas';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { CardBrandingFooterLarge } from '@/components/CardBranding';
 

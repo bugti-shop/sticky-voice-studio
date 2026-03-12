@@ -108,7 +108,7 @@ const JourneyBadges = () => {
       // Hide elements marked as no-export before capturing
       const noExportEls = badgeCardRef.current.querySelectorAll('[data-no-export="true"]');
       noExportEls.forEach(el => (el as HTMLElement).style.display = 'none');
-      const canvas = await html2canvas(badgeCardRef.current, {
+      const canvas = await lazyHtml2canvas(badgeCardRef.current, {
         backgroundColor: null,
         scale: 3,
         useCORS: true,
