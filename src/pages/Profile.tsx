@@ -15,7 +15,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { ProfileImageCropper } from '@/components/ProfileImageCropper';
 import { ProfileStatsBanner } from '@/components/profile/ProfileStats';
 import { ProfileAchievements } from '@/components/profile/ProfileAchievements';
-import { ProfileAccountOptions } from '@/components/profile/ProfileAccountOptions';
+
 
 export default function Profile() {
   const { t } = useTranslation();
@@ -268,10 +268,6 @@ export default function Profile() {
         <ProfileAchievements onViewCertificate={() => navigate('/todo/journey-badges')} />
       </div>
 
-      {/* Account Options */}
-      <div className="px-5 mt-6">
-        <ProfileAccountOptions />
-      </div>
 
       {lastDashboard === 'todo' ? <TodoBottomNavigation /> : <BottomNavigation />}
 
