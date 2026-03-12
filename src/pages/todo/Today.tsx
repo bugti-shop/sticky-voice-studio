@@ -125,185 +125,19 @@ const Today = () => {
     updateSubtask, deleteSubtask,
   } = actions;
 
-  // ── View-specific local state (voice playback, flat swipe) ──
-  const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
-  const [voiceProgress, setVoiceProgress] = useState(0);
-  const [voiceCurrentTime, setVoiceCurrentTime] = useState(0);
-  const [voiceDuration, setVoiceDuration] = useState<Record<string, number>>({});
-  const [voicePlaybackSpeed, setVoicePlaybackSpeed] = useState(1);
-  const [resolvedVoiceUrls, setResolvedVoiceUrls] = useState<Record<string, string>>({});
-  const flatAudioRef = useRef<HTMLAudioElement | null>(null);
-  const VOICE_PLAYBACK_SPEEDS = [0.5, 1, 1.5, 2];
+  // ── Voice playback (extracted hook) ──
+  const voice = useVoicePlayback();
+  const { playingVoiceId, voiceProgress, voiceCurrentTime, voiceDuration, voicePlaybackSpeed, resolvedVoiceUrls, flatAudioRef } = voice;
+  const { formatDuration, handleFlatVoicePlay, cycleVoicePlaybackSpeed, handleVoiceSeek, seekToPercent } = voice;
 
   // Resolve voice URLs
   const voiceItemsKey = items.filter(i => i.voiceRecording?.audioUrl).map(i => i.id).join(',');
-  useMemo(() => {
-    const resolveUrls = async () => {
-      const voiceItems = items.filter(item => item.voiceRecording?.audioUrl);
-      for (const item of voiceItems) {
-        if (item.voiceRecording && !resolvedVoiceUrls[item.id]) {
-          const url = await resolveTaskMediaUrl(item.voiceRecording.audioUrl);
-          if (url) setResolvedVoiceUrls(prev => ({ ...prev, [item.id]: url }));
-        }
-      }
-    };
-    resolveUrls();
-  }, [voiceItemsKey]);
+  useMemo(() => { voice.resolveVoiceUrls(items); }, [voiceItemsKey]);
 
-  // Swipe state for flat view
-  const [swipeState, setSwipeState] = useState<{ id: string; x: number; isSwiping: boolean; snapped?: 'left' | 'right' } | null>(null);
-  const touchStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const SWIPE_THRESHOLD = 60;
-  const SWIPE_ACTION_WIDTH = 60;
-
-  // Subtask swipe state
-  const [subtaskSwipeState, setSubtaskSwipeState] = useState<{ id: string; parentId: string; x: number; isSwiping: boolean } | null>(null);
-  const subtaskTouchStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleFlatVoicePlay = async (item: TodoItem, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!item.voiceRecording) return;
-    if (playingVoiceId === item.id && flatAudioRef.current) {
-      flatAudioRef.current.pause();
-      flatAudioRef.current = null;
-      setPlayingVoiceId(null);
-      setVoiceProgress(0);
-      setVoiceCurrentTime(0);
-      return;
-    }
-    if (flatAudioRef.current) {
-      flatAudioRef.current.pause();
-      flatAudioRef.current = null;
-    }
-    const audioUrl = await resolveTaskMediaUrl(item.voiceRecording.audioUrl);
-    if (!audioUrl) return;
-    const audio = new Audio(audioUrl);
-    audio.playbackRate = voicePlaybackSpeed;
-    flatAudioRef.current = audio;
-    audio.ontimeupdate = () => {
-      if (audio.duration && !isNaN(audio.duration)) {
-        setVoiceProgress((audio.currentTime / audio.duration) * 100);
-        setVoiceCurrentTime(audio.currentTime);
-      }
-    };
-    audio.onloadedmetadata = () => {
-      if (audio.duration && !isNaN(audio.duration)) {
-        setVoiceDuration(prev => ({ ...prev, [item.id]: Math.round(audio.duration) }));
-      }
-    };
-    audio.onended = () => {
-      setPlayingVoiceId(null);
-      setVoiceProgress(0);
-      setVoiceCurrentTime(0);
-      flatAudioRef.current = null;
-    };
-    audio.play();
-    setPlayingVoiceId(item.id);
-  };
-
-  const cycleVoicePlaybackSpeed = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const currentIndex = VOICE_PLAYBACK_SPEEDS.indexOf(voicePlaybackSpeed);
-    const nextIndex = (currentIndex + 1) % VOICE_PLAYBACK_SPEEDS.length;
-    const newSpeed = VOICE_PLAYBACK_SPEEDS[nextIndex];
-    setVoicePlaybackSpeed(newSpeed);
-    if (flatAudioRef.current) flatAudioRef.current.playbackRate = newSpeed;
-  };
-
-  const handleVoiceSeek = (e: React.MouseEvent<HTMLDivElement>, item: TodoItem) => {
-    e.stopPropagation();
-    if (!flatAudioRef.current || playingVoiceId !== item.id) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const percentage = clickX / rect.width;
-    const duration = flatAudioRef.current.duration || voiceDuration[item.id] || item.voiceRecording?.duration || 0;
-    if (duration && !isNaN(duration)) {
-      flatAudioRef.current.currentTime = percentage * duration;
-      setVoiceProgress(percentage * 100);
-      setVoiceCurrentTime(percentage * duration);
-    }
-  };
-
-  const handleFlatTouchStart = (itemId: string, e: React.TouchEvent) => {
-    if (!tasksSettings.swipeToComplete) return;
-    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    setSwipeState({ id: itemId, x: 0, isSwiping: false });
-  };
-
-  const handleFlatTouchMove = (itemId: string, e: React.TouchEvent) => {
-    if (!tasksSettings.swipeToComplete) return;
-    if (!swipeState || swipeState.id !== itemId) return;
-    const deltaX = e.touches[0].clientX - touchStartRef.current.x;
-    const deltaY = Math.abs(e.touches[0].clientY - touchStartRef.current.y);
-    if (deltaY > 30 && !swipeState.isSwiping) return;
-    if (Math.abs(deltaX) > 15) {
-      const maxSwipeRight = SWIPE_ACTION_WIDTH * 2;
-      const maxSwipeLeft = SWIPE_ACTION_WIDTH * 3;
-      const clampedX = Math.max(-maxSwipeLeft, Math.min(maxSwipeRight, deltaX));
-      setSwipeState({ id: itemId, x: clampedX, isSwiping: true });
-    }
-  };
-
-  const handleFlatTouchEnd = async (item: TodoItem) => {
-    if (!tasksSettings.swipeToComplete) return;
-    if (!swipeState || swipeState.id !== item.id) return;
-    const maxSwipeRight = SWIPE_ACTION_WIDTH * 2;
-    const maxSwipeLeft = SWIPE_ACTION_WIDTH * 3;
-    if (swipeState.isSwiping) {
-      if (swipeState.x > SWIPE_THRESHOLD) {
-        try { await Haptics.impact({ style: ImpactStyle.Medium }); } catch {}
-        setSwipeState({ id: item.id, x: maxSwipeRight, isSwiping: false, snapped: 'right' });
-        return;
-      } else if (swipeState.x < -SWIPE_THRESHOLD) {
-        try { await Haptics.impact({ style: ImpactStyle.Medium }); } catch {}
-        setSwipeState({ id: item.id, x: -maxSwipeLeft, isSwiping: false, snapped: 'left' });
-        return;
-      }
-    }
-    setSwipeState(null);
-  };
-
-  const handleSwipeAction = async (action: () => void) => {
-    try { await Haptics.impact({ style: ImpactStyle.Medium }); } catch {}
-    action();
-    setSwipeState(null);
-  };
-
-  const handleSubtaskSwipeStart = (subtaskId: string, parentId: string, e: React.TouchEvent) => {
-    if (!tasksSettings.swipeToComplete) return;
-    subtaskTouchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    setSubtaskSwipeState({ id: subtaskId, parentId, x: 0, isSwiping: false });
-  };
-
-  const handleSubtaskSwipeMove = (subtaskId: string, parentId: string, e: React.TouchEvent) => {
-    if (!tasksSettings.swipeToComplete) return;
-    if (!subtaskSwipeState || subtaskSwipeState.id !== subtaskId) return;
-    const deltaX = e.touches[0].clientX - subtaskTouchStartRef.current.x;
-    const deltaY = Math.abs(e.touches[0].clientY - subtaskTouchStartRef.current.y);
-    if (deltaY < 30) {
-      const clampedX = Math.max(-120, Math.min(120, deltaX));
-      setSubtaskSwipeState({ id: subtaskId, parentId, x: clampedX, isSwiping: true });
-    }
-  };
-
-  const handleSubtaskSwipeEnd = async (subtask: TodoItem, parentId: string) => {
-    if (!tasksSettings.swipeToComplete) return;
-    if (!subtaskSwipeState || subtaskSwipeState.id !== subtask.id) return;
-    if (subtaskSwipeState.x < -SWIPE_THRESHOLD) {
-      try { await Haptics.impact({ style: ImpactStyle.Medium }); } catch {}
-      deleteSubtask(parentId, subtask.id, true);
-    } else if (subtaskSwipeState.x > SWIPE_THRESHOLD) {
-      try { await Haptics.impact({ style: ImpactStyle.Heavy }); } catch {}
-      updateSubtask(parentId, subtask.id, { completed: !subtask.completed });
-    }
-    setSubtaskSwipeState(null);
-  };
+  // ── Swipe handlers (extracted hook) ──
+  const swipe = useTaskSwipe(tasksSettings.swipeToComplete, updateSubtask, deleteSubtask);
+  const { swipeState, SWIPE_ACTION_WIDTH, handleFlatTouchStart, handleFlatTouchMove, handleFlatTouchEnd, handleSwipeAction } = swipe;
+  const { subtaskSwipeState, handleSubtaskSwipeStart, handleSubtaskSwipeMove, handleSubtaskSwipeEnd } = swipe;
 
   // ── Render helpers ──
   const getViewModeIcon = () => {
