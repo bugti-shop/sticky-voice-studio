@@ -8,7 +8,7 @@ import { SyncStatusButton } from '@/components/SyncStatusButton';
 import { debouncedSaveNotes, saveNoteToDBSingle, saveNotesToDB, deleteNoteFromDB } from '@/utils/noteStorage';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { exportNoteToDocx } from '@/utils/exportToDocx';
+
 import { exportNoteToMarkdown } from '@/utils/markdownExport';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
